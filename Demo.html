@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="de">
+<head>
+	<script type="text/javascript" 
+	        src="publicsql.js"></script>
+	<script src="jquery.min.js"></script>
+</head>
+
+<style media="screen">
+    .cell {
+      width: 10px;
+      height: 10px;
+      background-color: grey;
+      float: left;
+      margin-left: 1px;
+      margin-bottom: 1px;
+    }
+</style>
+
+	<script>
+	    var rows = 50;
+	    var cols = 50;
+	    var error = "";
+	    var parsedSelect;
+	    var clearColor = [255,255,255]; 
+
+		function query() {
+
+			/*AAACHTUUUNG
+				im where muss vor und nach dem "=" ein blank sein, evtl automatisch machen?*/
+
+			//publicSQL.query("SELECT F.x,F.y,F.r,F.g,F.b FROM FirstData F WHERE x = 0", "showResult"); 
+			preProcessor($("#queryText").val());
+	  	}
+
+	  	function showResult(result) 
+	  	{
+	  		var transition = $('input[name="Transition"]:checked').val();
+	  		switch(transition) {
+			    case "in":
+					instantTransition(result);
+			        break;
+	/*		    case "del":
+			    	var prevTime = Date.now();
+			        for(i=0; i<rows; i++)
+			        {
+			        	for(j=0; j<cols; j++)
+			        	{
+					  		for(c=0; c<result.length; c++)
+					  		{
+					  			colorSet = false;
+					  			var id = [i,j];
+					  			if(id == [Math.round(result[c][0]), Math.round(result[c][1])]) //current cell contained in result
+					  			{
+					  				$("#cell"+id.join("-")).css({backgroundColor: "rgb("+Math.round(result[c][2])+","+Math.round(result[c][3])+","+Math.round(result[c][4])+")"});
+					  			}
+					  			colorSet = true;
+					  		}
+					  		if(!colorSet)
+					  		{
+					  			$("#cell"+id.join("-")).css({backgroundColor: "rgb("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+")"});
+					  		}
+							//while(Date.now()-prevTime < 2)
+								console.log(Date.now()-prevTime);
+							prevTime = Date.now();
+			        	}
+			        }
+			        break;*/
+			    default:
+			        instantTransition(result);
+			} 
+	  	}
+
+	  	function instantTransition(result)
+	  	{
+			$("#container").children().css({backgroundColor: "rgb("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+")"});
+	  		for(i=0; i<result.length; i++)
+	  		{
+	  			var id = [Math.round(result[i][0]), Math.round(result[i][1])]; //need x,y,r,g,b
+	  			$("#cell"+id.join("-")).css({backgroundColor: "rgb("+Math.round(result[i][2])+","+Math.round(result[i][3])+","+Math.round(result[i][4])+")"});
+	  		}
+	  	}
+
+	  	function init()
+	  	{
+			//baue das Gitter auf
+			$("body").append("<div id='container'></div>");
+			for(i=0;i<rows;i++){
+				for(j=0;j<cols;j++){
+					var id = [i,j];
+					$("#container").append("<div class='cell' id=cell"+id.join("-")+"></div>");
+					//$("#container").children().css({float: "left", width:"50px", height:"50px"});
+				}
+			}
+
+			var x = ($('.cell').width() * cols);
+			var y = (parseInt($('.cell').css('margin-left')) * cols)
+			var containerWidth = x + y
+	  		$("#container").css({'width':containerWidth+'px'})
+	  	}
+
+	  	/******************PREPROCESSOR*********************/
+	  	function preProcessor(qselect)
+	  	{
+	  		//split up
+	  		var from = "nix";
+	  		var idx = 0;
+
+	  		var select = qselect;
+	  		var from = "";
+	  		var where = "";
+	  		//Where
+	  		idx = select.toLowerCase().indexOf("where");
+	  		if(idx != -1)
+	  		{
+	  			where = select.substring(idx + 5);
+	  			select = select.substring(0,idx);
+	  		}
+
+            idx = select.toLowerCase().indexOf("from");
+            if (idx != -1) {
+                from = select.substring(idx + 4);
+                select = select.substring(0, idx);
+            }
+            else
+            {
+            	error = "no FROM in SQL statement";
+            }
+
+            select = select.substring(6);
+
+			//arithmetic in select part
+            parsedSelect = tokenize(select); //array containing separated operations
+            var newselect = "";
+
+            //build new select to get all information
+            var colnames = [];
+            for (var pos=0; pos<parsedSelect.length; pos++)
+            {
+            	if(parsedSelect[pos].match(/[a-zA-Z]/i))
+            	{
+            		//found a column name
+            		colnames.push(parsedSelect[pos]);
+            	}
+            }
+            if (colnames.length > 0)
+            	newselect = colnames.join();
+            else
+            	newselect = select;
+
+            var newquery = "SELECT "+newselect+" FROM "+from;
+            if(where != "")
+            	newquery = newquery + " WHERE "+where;
+            publicSQL.query(newquery, "postProcessor");
+	  	}
+
+	  	function postProcessor(result)
+	  	{
+	  		var newresult = [];
+	  		for(var i=1; i<result.length; i++) //for every line of results I got
+	  		{
+	  			var curSelect = parsedSelect.slice();
+	  			if(curSelect[0] == "*") //Select * From ...
+	  				newresult.push(result[i]);
+	  			else
+	  			{
+	  				newresult.push([]);
+		  			curSelect.push(","); //make sure each entry is evaluated
+		  			var rescnt = 0;
+		  			var prevpos = 0;
+					var pos = 0;
+			  		//for (var pos=0; pos<curSelect.length; pos++)
+			  		while (pos<curSelect.length)
+			  		{
+			  			if((typeof curSelect[pos] == "string")&&(curSelect[pos].match(/[a-zA-Z]/)))
+			  			{
+			  				//found a column name, replace
+			  				curSelect[pos] = result[i][rescnt];
+			  				rescnt++;
+			  			}
+			  			if(curSelect[pos]==",")
+			  			{
+			  				newresult[i-1].push(evaluate(parse(curSelect.slice(prevpos, pos))));
+			  				prevpos = pos+1;
+			  			}
+			  			pos++;
+			  		}
+	  			}
+	  		}
+	  		showResult(newresult);
+	  	}
+
+	  	/***********CALCULATOR********************************/
+	    function evaluate(obj) {
+	        switch (obj.type) {
+	        case "number":  return parseInt(obj.value);
+	        case "name":  return variables[obj.id] || 0;
+	        case "+":  return evaluate(obj.left) + evaluate(obj.right);
+	        case "-":  return evaluate(obj.left) - evaluate(obj.right);
+	        case "*":  return evaluate(obj.left) * evaluate(obj.right);
+	        case "/":  return evaluate(obj.left) / evaluate(obj.right);
+	        }
+	    }
+
+		function tokenize(code) {
+		    var results = [];
+		    var tokenRegExp = /\s*([A-Za-z0-9]+|[0-9]+|\S)\s*/g;
+
+		    var m;
+		    while ((m = tokenRegExp.exec(code)) !== null)
+		        results.push(m[1]);
+		    return results;
+		}
+
+		function parse(tokens) {
+			//var tokens = tokenize(code);
+			var position = 0;
+
+			function peek() {
+				return tokens[position];
+			}
+
+			function consume(token) {
+				//assert.strictEqual(token, tokens[position]); 
+				position++;
+			}
+
+			function parsePrimaryExpr() {
+		        var t = peek();
+		        if (isNumber(t)) {
+		            consume(t);
+		            return {type: "number", value: t};
+		        } else if (isName(t)) {
+		            consume(t);
+		            return {type: "name", id: t};
+		        } else if (t === "(") {
+		            consume(t);
+		            var expr = parseExpr();
+		            if (peek() !== ")")
+		                throw new SyntaxError("expected )");
+		            consume(")");
+		            return expr;
+		        } else {
+		            throw new SyntaxError("expected a number, a variable, or parentheses");
+		        }
+		    }
+
+		    function parseMulExpr() {
+		        var expr = parsePrimaryExpr();
+		        var t = peek();
+		        while (t === "*" || t === "/") {
+		            consume(t);
+		            var rhs = parsePrimaryExpr();
+		            expr = {type: t, left: expr, right: rhs};
+		            t = peek();
+		        }
+		        return expr;
+		    }
+
+		    function parseExpr() {
+		        var expr = parseMulExpr();
+		        var t = peek();
+		        while (t === "+" || t === "-") {
+		            consume(t);
+		            var rhs = parseMulExpr();
+		            expr = {type: t, left: expr, right: rhs};
+		            t = peek();
+		        }
+		        return expr;
+		    }
+
+			var result = parseExpr();
+
+			return result;
+		}
+
+		function isNumber(token) {
+		    return token !== undefined && ((typeof token != "string") ||(typeof token == "string" &&token.match(/^[0-9]+$/) !== null));
+		}
+
+		function isName(token) { //names are allowed to contain numbers as well
+		    return token !== undefined && typeof token == "string" && token.match(/^[A-Za-z0-9]+$/) !== null;
+		}
+
+	</script>
+
+<body onload="init()">
+	<form action="" name="form">
+		<input name="queryText" type="text" id="queryText" size="120">
+		<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
+	</form>
+	<form name="options">
+		 <fieldset> 
+		 	<input type="radio" id="in" name="Transition" value="in"> 
+		 	<label for="in">Instant</label>
+		 	<input type="radio" id="del" name="Transition" value="del">
+		 	<label for="del">Delay</label>
+		 </fieldset>	
+ 	</form>
+</body>

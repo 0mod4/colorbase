@@ -1,0 +1,21 @@
+<head>
+	<script type="text/javascript" src="publicsql.js"></script>
+
+	<script language="javascript">
+</script>
+<script language="javascript">
+function myQuery() {
+publicSQL.query(document.form1.queryText.value, "publicSQL.show");
+}
+</script>
+
+
+</head>
+
+<body>
+
+<form action="" name="form1">
+<input name="queryText" type="text" id="queryText" size="120">
+<input name="queryButton" type="button" id="queryButton" onClick="myQuery()" value="my query">
+</form>
+</body>
