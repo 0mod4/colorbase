@@ -274,16 +274,18 @@
 	</script>
 
 <body onload="init()">
-	<form action="" name="form">
-		<input name="queryText" type="text" id="queryText" size="120">
-		<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
-	</form>
-	<form name="options">
-		 <fieldset>
-		 	<input type="radio" id="in" name="Transition" value="in">
-		 	<label for="in">Instant</label>
-		 	<input type="radio" id="del" name="Transition" value="del">
-		 	<label for="del">Delay</label>
-		 </fieldset>
- 	</form>
+	<div class="inputform">
+			<form action="" name="form">
+				<input name="queryText" type="text" id="queryText" size="120">
+				<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
+			</form>
+			<form name="options">
+				<fieldset>
+					<input type="radio" id="in" name="Transition" value="in">
+					<label for="in">Instant</label>
+					<input type="radio" id="del" name="Transition" value="del">
+					<label for="del">Delay</label>
+				</fieldset>
+			</form>
+	</div>
 </body>
