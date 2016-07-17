@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="de">
 <head>
-	<script type="text/javascript" 
-	        src="publicsql.js"></script>
+	<script src='sql.js'></script>
 	<script src="jquery.min.js"></script>
 </head>
 
@@ -24,13 +23,52 @@
 	    var parsedSelect;
 	    var clearColor = [255,255,255]; 
 
+	    var db;
+
+	    function createDefaultTable() {
+		    db.run("CREATE TABLE dummy (x,y,r,g,b);");
+		    var values = [];
+		    for(var i=0; i<6; i++)
+		    {
+		    	for(var j=0; j<6; j++)
+		    	{
+		    		values = [];
+		    		values.push(i);
+		    		values.push(j);
+		    		if(i==j)
+		    		{
+		    			values.push(200);
+		    			values.push(20);
+		    			values.push(100);
+		    		}
+		    		else
+		    		{
+		    			values.push(0);
+		    			values.push(50);
+		    			values.push(200);
+		    		}
+		    		db.run("INSERT INTO dummy VALUES (?,?,?,?,?)", values);
+		    	}
+		    }
+	    }
+
 		function query() {
 
-			/*AAACHTUUUNG
-				im where muss vor und nach dem "=" ein blank sein, evtl automatisch machen?*/
-
 			//publicSQL.query("SELECT F.x,F.y,F.r,F.g,F.b FROM FirstData F WHERE x = 0", "showResult"); 
-			preProcessor($("#queryText").val());
+			//preProcessor($("#queryText").val());
+
+			var stmt = db.prepare($("#queryText").val());
+			if(stmt)
+			{
+				while(stmt.step()) {
+			        var row = stmt.getAsObject();
+			        console.log(row.x);
+			    }
+			}
+			else
+			{
+				alert("Could not process statement");
+			}
 	  	}
 
 	  	function showResult(result) 
@@ -83,7 +121,7 @@
 
 	  	function init()
 	  	{
-			//baue das Gitter auf
+			//build grid
 			$("body").append("<div id='container'></div>");
 			for(i=0;i<rows;i++){
 				for(j=0;j<cols;j++){
@@ -97,6 +135,12 @@
 			var y = (parseInt($('.cell').css('margin-left')) * cols)
 			var containerWidth = x + y
 	  		$("#container").css({'width':containerWidth+'px'})
+
+	  		//db connection
+	  		db = new SQL.Database();
+
+	  		//create default table
+	  		createDefaultTable();
 	  	}
 
 	  	/******************PREPROCESSOR*********************/
@@ -286,7 +330,7 @@
 
 <body onload="init()">
 	<form action="" name="form">
-		<input name="queryText" type="text" id="queryText" size="120">
+		<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy">
 		<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
 	</form>
 	<form name="options">
