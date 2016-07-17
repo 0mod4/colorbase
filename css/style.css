@@ -1,0 +1,32 @@
+body {
+  background-color: darkgrey; }
+  body.experimental #container {
+    -webkit-transform: scale(2.6);
+        -ms-transform: scale(2.6);
+            transform: scale(2.6);
+    left: 30.6%;
+    top: 316px;
+    position: relative; }
+
+.inputform {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  margin: 20px;
+  float: left;
+  z-index: 99; }
+  .inputform form {
+    color: white; }
+
+#container {
+  overflow: hidden;
+  position: absolute; }
+  #container .cell {
+    width: 10px;
+    height: 10px;
+    background-color: grey;
+    float: left;
+    margin-left: 1px;
+    margin-bottom: 1px; }
+
+/*# sourceMappingURL=style.css.map */

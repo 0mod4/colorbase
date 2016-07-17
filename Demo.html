@@ -3,25 +3,15 @@
 <head>
 	<script src='sql.js'></script>
 	<script src="jquery.min.js"></script>
+	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
 </head>
-
-<style media="screen">
-    .cell {
-      width: 10px;
-      height: 10px;
-      background-color: grey;
-      float: left;
-      margin-left: 1px;
-      margin-bottom: 1px;
-    }
-</style>
 
 	<script>
 	    var rows = 50;
 	    var cols = 50;
 	    var error = "";
 	    var parsedSelect;
-	    var clearColor = [255,255,255]; 
+	    var clearColor = [255,255,255];
 
 	    var db;
 
@@ -71,7 +61,7 @@
 			}
 	  	}
 
-	  	function showResult(result) 
+	  	function showResult(result)
 	  	{
 	  		var transition = $('input[name="Transition"]:checked').val();
 	  		switch(transition) {
@@ -106,7 +96,7 @@
 			        break;*/
 			    default:
 			        instantTransition(result);
-			} 
+			}
 	  	}
 
 	  	function instantTransition(result)
@@ -265,7 +255,7 @@
 			}
 
 			function consume(token) {
-				//assert.strictEqual(token, tokens[position]); 
+				//assert.strictEqual(token, tokens[position]);
 				position++;
 			}
 
@@ -329,16 +319,18 @@
 	</script>
 
 <body onload="init()">
-	<form action="" name="form">
-		<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy">
-		<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
-	</form>
-	<form name="options">
-		 <fieldset> 
-		 	<input type="radio" id="in" name="Transition" value="in"> 
-		 	<label for="in">Instant</label>
-		 	<input type="radio" id="del" name="Transition" value="del">
-		 	<label for="del">Delay</label>
-		 </fieldset>	
- 	</form>
+	<div class="inputform">
+			<form action="" name="form">
+				<input name="queryText" type="text" id="queryText" size="120">
+				<input name="queryButton" type="button" id="queryButton" onClick="query()" value="my query">
+			</form>
+			<form name="options">
+				<fieldset>
+					<input type="radio" id="in" name="Transition" value="in">
+					<label for="in">Instant</label>
+					<input type="radio" id="del" name="Transition" value="del">
+					<label for="del">Delay</label>
+				</fieldset>
+			</form>
+	</div>
 </body>
