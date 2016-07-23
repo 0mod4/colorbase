@@ -22,10 +22,8 @@ body {
 }
 #container {
   overflow: hidden;
-  position: absolute;
+  margin: 0 auto;
   .cell {
-    width: 10px;
-    height: 10px;
     background-color: grey;
     float: left;
     margin-left: 1px;

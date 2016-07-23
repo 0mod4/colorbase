@@ -3,12 +3,14 @@
 <head>
 	<script src='js/sql.js'></script>
 	<script src="js/jquery.min.js"></script>
+	<link rel="stylesheet" href="css/normalize.css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
 </head>
 
 <script src='js/Demo.js'></script>
 
 <body onload="init()">
+
 	<div class="inputform">
 			<form action="" name="form">
 				<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy">
@@ -29,9 +31,15 @@
 					<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
 				</fieldset>
 			</form>
+ 	</div>
+
+  <div id="videoDiv">
+    	<video id="camFeed" width="320" height="240" autoplay></video>
+    	<canvas id="videoCanvas" width="50" height="50"></canvas>
 	</div>
-    <div id="videoDiv">
-      	<video id="camFeed" width="320" height="240" autoplay></video>
-      	<canvas id="videoCanvas" width="50" height="50"></canvas>
-  	</div>
+
+	<div id="container">
+		<!-- This is filled with cells later -->
+	</div>
+
 </body>

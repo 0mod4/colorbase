@@ -131,7 +131,7 @@
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'arraybuffer';
- 
+
         // When loaded decode the data
         request.onload = function() {
             // decode the data
@@ -145,17 +145,17 @@
 	function playSound() {
 	  source = context.createBufferSource();
 	  source.connect(soundAnalyzer);
-	  source.buffer = musicBuffer;               
+	  source.buffer = musicBuffer;
 	  source.connect(context.destination);
 	  scriptProcessor.connect(context.destination);
-	  source.start(0);                           
+	  source.start(0);
 	}
 
     function stopSound() {
     	scriptProcessor.disconnect();
     	source.stop();
     }
- 
+
  	function toggleMusic() {
  		if(online)
  		{
@@ -185,23 +185,23 @@
     {
         // setup a javascript node
         scriptProcessor = context.createScriptProcessor(4096, 1, 1); //2048
- 
+
         // setup a analyzer
         soundAnalyzer = context.createAnalyser();
         soundAnalyzer.smoothingTimeConstant = 0.3;
         soundAnalyzer.fftSize = 512;
- 
+
         // we use the javascript node to draw at a specific interval.
         soundAnalyzer.connect(scriptProcessor);
 
 	    scriptProcessor.onaudioprocess = function() {
-	 
+
 	        // get the average, bincount is fftsize / 2
 	        var array =  new Uint8Array(soundAnalyzer.frequencyBinCount);
 	        soundAnalyzer.getByteFrequencyData(array);
 	        getSoundBars(array, $("#numSoundBars").val());
 	    }
-	 
+
 	    function getSoundBars(array, n) {
 	        soundBars = [];
 	        var length = array.length;
@@ -371,7 +371,7 @@
 
     function execute(){
 		var statement = $("#queryText").val();
-		
+
 		clearIntervals();
 
 		if(statement.toUpperCase().indexOf("MUSIC") > -1) //selects from Music table
@@ -481,23 +481,73 @@
   		}
   	}
 
-  	/*INITIALIZATION*/
-  	function init()
-  	{
-		//build grid
-		$("body").append("<div id='container'></div>");
-		for(i=0;i<rows;i++){
-			for(j=0;j<cols;j++){
-				var id = [j,i];
-				$("#container").append("<div class='cell' id=cell"+id.join("-")+"></div>");
-				//$("#container").children().css({float: "left", width:"50px", height:"50px"});
-			}
-		}
+    // INITIALIZATION
+    function init () {
 
-		var x = ($('.cell').width() * cols);
-		var y = (parseInt($('.cell').css('margin-left')) * cols)
-		var containerWidth = x + y
-  		$("#container").css({'width':containerWidth+'px'})
+			var margin_of_cells = [];
+
+			function getMarginOfCells () {
+				var cell = $('.cell');
+				margin_of_cells[0] = parseInt(cell.css('margin-top'), 10);
+				margin_of_cells[1] = parseInt(cell.css('margin-right'), 10);
+				margin_of_cells[2] = parseInt(cell.css('margin-bottom'), 10);
+				margin_of_cells[3] = parseInt(cell.css('margin-left'), 10);
+			}
+
+			// helper functions
+			function getCellSize () {
+				var viewport_height = $(window).height()
+				var cell_size = 0
+				var combined_vertical_margin_of_cells = margin_of_cells[0] + margin_of_cells[2]
+				cell_size = Math.floor(viewport_height / rows - combined_vertical_margin_of_cells)
+				return cell_size
+			}
+
+			// get pixel width of container based on number of columns
+			function getContainerWidth () {
+				var cell = $('.cell');
+				var width_of_all_cells = cell.width() * cols;
+				var combined_margin_left_of_cells = margin_of_cells[3] * cols;
+				var container_width = width_of_all_cells + combined_margin_left_of_cells;
+				return container_width
+			}
+
+			// get pixel offset to center container vertically
+			function getVerticalContainerOffset (container_width) {
+				var container_height = container_width // because it´s a square, d´oh!
+				var viewport_height = $(window).height()
+				var vertical_container_offset = Math.round((viewport_height - container_height) / 2)
+				return vertical_container_offset
+			}
+
+			// build grid
+			function buildGrid(rows, cols) {
+				for (var i = 0; i < rows; i++) {
+					for (var j = 0; j < cols; j++) {
+						var id = [j, i]
+						$('#container').append("<div class='cell' id=cell" + id.join('-') + '></div>')
+					}
+				}
+
+			}
+
+			buildGrid(rows, cols);
+			getMarginOfCells();
+
+			// set dimensions of all cells
+			$('.cell').css(
+				{
+					'width': getCellSize() + 'px',
+					'height': getCellSize() + 'px'
+				}
+			)
+			// set container size and offset
+			$('#container').css(
+				{
+					'width': getContainerWidth() + 'px',
+					'margin-top': getVerticalContainerOffset(getContainerWidth()) + 'px'
+				}
+			)
 
   		//db connection
   		db = new SQL.Database();
