@@ -26,9 +26,10 @@
 
 	var videoSource;
 
-    var musicIntervalID;
-	var videoIntervalID;
-	var moveIntervalID;
+    var musicIntervalID = 0;
+	var videoIntervalID = 0;
+	var moveIntervalID = 0;
+	var queryIntervalID = 0;
 
 	var prevData = []; //needed for motion detection
 
@@ -86,8 +87,9 @@
 
     /*TABLE UPDATES*/
     function updateMusicTable() {
+    	console.log("update Music Table");
     	db.run("UPDATE MUSIC SET r=?, g=?, b=?",[clearColor[0],clearColor[1],clearColor[2]]);
-    	if(!(typeof soundBars === 'undefined')) //no music playing
+    	if(typeof soundBars !== 'undefined') //no music playing
     	{
 	    	var n = $("#numSoundBars").val();
 	    	var num = 1;
@@ -170,13 +172,19 @@
  		if(online)
  		{
 	 		if($("#playMusic").prop( "checked" )) //start music
+	 		{
 	 			playSound();
+	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
+	        		if(musicIntervalID == 0)
+	        			musicIntervalID = window.setInterval(function() {updateMusicTable();})
+	 		}
 	 		else
 	 		{
 	 			stopSound();
-				if(typeof musicIntervalID !== undefined) //an interval is active, stop it
+				if(musicIntervalID > 0) //an interval is active, stop it
 				{
 					clearInterval(musicIntervalID);
+					musicIntervalID = 0;
 				}
 	 		}
  		}
@@ -264,9 +272,10 @@
 	{
 	    document.getElementById('camFeed').src = '';//URL.createObjectURL(videoSource);
 
-	    if(typeof videoIntervalID !== undefined) //an interval is active, stop it
+	    if(videoIntervalID > 0) //an interval is active, stop it
 	    {
 	        clearInterval(videoIntervalID);
+	        videoIntervalID = 0;
 	    }
 	}
 
@@ -286,13 +295,19 @@
 	    if(video)
 	    {
 	        if($("#useVideo").prop( "checked" )) //start video
+	        {
 	            useVideo();
+	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("VIDEO")> -1))
+	        		if(videoIntervalID == 0)
+	        			videoIntervalID = window.setInterval(function() {updateVideoTable();})
+	        }
 	        else
 	        {
 	            stopVideo();
-	            if(typeof videoIntervalID !== undefined) //an interval is active, stop it
+	            if(videoIntervalID > 0) //an interval is active, stop it
 	            {
 	                clearInterval(videoIntervalID);
+	                videoIntervalID = 0;
 	            }
 	        }
 	    }
@@ -303,7 +318,7 @@
 	}
 
 	function updateVideoTable()
-	{
+	{console.log("update video")
 		if($("#useVideo").prop( "checked" ))
 		{
 		    var c = document.getElementById('videoCanvas');
@@ -396,18 +411,43 @@
     /*EXECUTING*/
     function clearIntervals()
     {
-		if(typeof musicIntervalID !== undefined) //an interval is active, stop it
+		if(musicIntervalID > 0) //an interval is active, stop it
 		{
 			clearInterval(musicIntervalID);
+			musicIntervalID = 0;
 		}
-		if(typeof musicIntervalID !== undefined) //an interval is active, stop it
+		if(musicIntervalID > 0) //an interval is active, stop it
 		{
 			clearInterval(videoIntervalID);
+			videoIntervalID = 0;
 		}
-		if(typeof moveIntervalID !== undefined) //an interval is active, stop it
+		if(moveIntervalID > 0) //an interval is active, stop it
 		{
 			clearInterval(moveIntervalID);
+			moveIntervalID = 0;
 		}
+		if(queryIntervalID > 0) //an interval is active, stop it
+		{
+			clearInterval(queryIntervalID);
+			queryIntervalID = 0;
+		}
+    }
+
+    function intervalSet()
+    {
+		if(musicIntervalID > 0)
+		{
+			return true;
+		}
+		if(musicIntervalID > 0)
+		{
+			return true;
+		}
+		if(moveIntervalID > 0)
+		{
+			return true;
+		}
+		return false;
     }
 
     function execute(){
@@ -417,15 +457,19 @@
 
 		if(statement.indexOf("MUSIC") > -1) //selects from Music table
 		{
-			musicIntervalID = window.setInterval(function() {updateMusicTable(); query(statement); }, 100);
+			musicIntervalID = window.setInterval(function() {updateMusicTable(); }, 100);
 		}
 		if(statement.indexOf("VIDEO")> -1) //selects from Video table
 		{
-			videoIntervalID = window.setInterval(function() {updateVideoTable(); query(statement); }, 100);
+			videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
 		}
 		if(statement.indexOf("MOVE")>-1) //selects from MOVE table
 		{
-			moveIntervalID = window.setInterval(function() {updateMoveTable(); query(statement); }, 100);
+			moveIntervalID = window.setInterval(function() {updateMoveTable(); }, 100);
+		}
+		if(intervalSet())
+		{
+			queryIntervalID = window.setInterval(function() {query(statement); }, 100);
 		}
 		else
 		{
