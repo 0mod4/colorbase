@@ -32,3 +32,12 @@ body {
     margin-bottom: 1px;
   }
 }
+#videoCanvas {
+  display: none;
+}
+#videoDiv {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: 10px;
+}
