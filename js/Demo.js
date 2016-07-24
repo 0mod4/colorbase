@@ -4,13 +4,11 @@
     var error = "";
     var emptyData = [];
     var parsedSelect;
-    var clearColor = [255,255,255];
-    var musicColor1 = [255,0,0];
-    var musicColor2 = [0,0,255];
-    var moveColor = [255,142,0];
-    var moveColor2 = [10,103,163];
+    var clearColor = [255,255,255,0.25];
+    var musicColor = [255,0,0,1];
+    var moveColor = [255,142,0,1];
 
-    var online = navigator.onLine;
+    var online = true;
     var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
 	            navigator.mozGetUserMedia || navigator.msGetUserMedia);
 
@@ -39,13 +37,13 @@
 	    {
 	    	for(var y=0; y<cols; y++)
 	    	{
-	    		emptyData.push("("+x+","+y+",0,0,0)");
+	    		emptyData.push("("+x+","+y+","+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
 	    	}
 	    }
     }
 
     function createDefaultTable() {
-	    db.run("CREATE TABLE dummy (x,y,r,g,b);");
+	    db.run("CREATE TABLE dummy (x,y,r,g,b,a);");
 	    var values = [];
 	    for(var x=0; x<rows; x++)
 	    {
@@ -55,15 +53,11 @@
 	    		values.push(y);
 	    		if(x==y)
 	    		{
-	    			values.push(200);
-	    			values.push(20);
-	    			values.push("100)");
+	    			values.push("200, 20, 100, 1)");
 	    		}
 	    		else
 	    		{
-	    			values.push(0);
-	    			values.push(50);
-	    			values.push("200)");
+	    			values.push("0,50,200,0.5)");
 	    		}
 	    	}
 	    }
@@ -71,24 +65,24 @@
     }
 
     function createMusicTable() {
-    	db.run("CREATE TABLE MUSIC (x,y,r,g,b);");
+    	db.run("CREATE TABLE MUSIC (x,y,r,g,b,a);");
     	db.run("INSERT INTO MUSIC VALUES "+emptyData.join());
     }
 
     function createVideoTable() {
-    	db.run("CREATE TABLE VIDEO (x,y,r,g,b);");
+    	db.run("CREATE TABLE VIDEO (x,y,r,g,b,a);");
    		db.run("INSERT INTO VIDEO VALUES "+emptyData.join());
     }
 
     function createMoveTable() {
-    	db.run("CREATE TABLE MOVE (x,y,r,g,b);");
+    	db.run("CREATE TABLE MOVE (x,y,r,g,b,a);");
    		db.run("INSERT INTO MOVE VALUES "+emptyData.join());
     }
 
     /*TABLE UPDATES*/
     function updateMusicTable() {
     	console.log("update Music Table");
-    	db.run("UPDATE MUSIC SET r=?, g=?, b=?",[clearColor[0],clearColor[1],clearColor[2]]);
+    	db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
     	if(typeof soundBars !== 'undefined') //no music playing
     	{
 	    	var n = $("#numSoundBars").val();
@@ -108,7 +102,7 @@
 	    	}
 	    	//map span of soundbars to rows
 	    	var diffPerCell = (max-min)/rows;
-	    	diffPerCell = 200/rows; //test
+	    	diffPerCell = 300/rows;
 	    	for(var sb=0; sb < n; sb++) //for all current sound bars
 	    	{
 	    		var cursb;
@@ -132,7 +126,7 @@
 	    			db.run("UPDATE MUSIC SET r=?, g=?, b=? WHERE y=? AND x BETWEEN ? AND ?", [r,g,b,y,sb*num,(sb+1)*num-1]);
 	    		}*/
 
-	    		db.run("UPDATE MUSIC SET r=?, g=?, b=? WHERE y>? AND x BETWEEN ? AND ?", [musicColor1[0],musicColor1[1],musicColor1[2],rows-sbHeight,sb*num,(sb+1)*num-1]);
+	    		db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=? WHERE y>? AND x BETWEEN ? AND ?", [musicColor[0],musicColor[1],musicColor[2],musicColor[3],rows-sbHeight,sb*num,(sb+1)*num-1]);
 	    	}
     	}
     }
@@ -291,15 +285,18 @@
 
 	function toggleVideo()
 	{
-	    var video = true;
 	    if(video)
 	    {
 	        if($("#useVideo").prop( "checked" )) //start video
 	        {
 	            useVideo();
 	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("VIDEO")> -1))
+	        	{
 	        		if(videoIntervalID == 0)
+	        		{console.log("start video interval");
 	        			videoIntervalID = window.setInterval(function() {updateVideoTable();})
+	        		}
+	        	}
 	        }
 	        else
 	        {
@@ -325,28 +322,23 @@
 		    var v = document.getElementById('camFeed');
 		    c.getContext('2d').drawImage(v, 0, 0, cols, rows);
 		    var data = c.getContext('2d').getImageData(0, 0, cols, rows).data;
-
-		    var x,y;
-
-		    db.run("DELETE FROM VIDEO");
-
 		    var values = [];
+		    db.run("DELETE FROM VIDEO");
 		    for(var x=0; x<cols; x++)
 		    {
 		    	for(var y=0; y<rows; y++)
 		    	{
 		    		s = (y*cols+x)*4;
-	    			values.push("("+x);
-	    			values.push(y);
+	    			values.push("("+x+","+y);
 	    			values.push(data[s]);
 	    			values.push(data[s+1]);
-	    			values.push(data[s+2]+")");
+	    			values.push(data[s+2]+",1)");
 		    	}
 		    }
 		    db.run("INSERT INTO VIDEO VALUES "+values.join());
 		}
 		else{
-			db.run("UPDATE VIDEO SET r=?, g=?, b=?",[clearColor[0],clearColor[1],clearColor[2]]);
+			db.run("UPDATE VIDEO SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
 		}
 	}
 
@@ -390,11 +382,11 @@
 			    		s = (y*cols+x)*4;
 			    		if(!comparePixel(data[s], data[s+1], data[s+2], prevData[s], prevData[s+1], prevData[s+2]))
 			    		{
-			    			values.push(moveColor[0]+","+moveColor[1]+","+moveColor[2]+")");
+			    			values.push(moveColor[0]+","+moveColor[1]+","+moveColor[2]+","+moveColor[3]+")");
 			    		}
 			    		else
 			    		{
-			    			values.push(moveColor2[0]+","+moveColor2[1]+","+moveColor2[2]+")");
+			    			values.push(clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
 			    		}
 			    	}
 			    }
@@ -404,7 +396,7 @@
 		    prevData = data;
 		}
 		else{
-			db.run("UPDATE MOVE SET r=?, g=?, b=?",[clearColor[0],clearColor[1],clearColor[2]]);
+			db.run("UPDATE MOVE SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
 		}
 	}
 
@@ -439,7 +431,7 @@
 		{
 			return true;
 		}
-		if(musicIntervalID > 0)
+		if(videoIntervalID > 0)
 		{
 			return true;
 		}
@@ -504,6 +496,7 @@
 
   	function showResult2D(result)
   	{
+  		var a_ = -1;
   		//check if given result is of needed format
   		if(!("x" in result[0]))
   			alert("no x value selected");
@@ -515,6 +508,8 @@
   			alert("no g value selected");
   		if(!("b" in result[0]))
   			alert("no b value selected");
+  		if(!("a" in result[0]))
+  			a_ = 1;
 
   		var transition = $('input[name="Transition"]:checked').val();
   		switch(transition) {
@@ -550,25 +545,31 @@
 		    default:
 		        instantTransition(result);
 		}
-  	}
-
-  	function clamp(val, min, max)
-  	{
+	  	
+	  	function clamp(val, min, max)
+	  	{
 			return Math.min(Math.max(val, min), max);
+	  	}
+
+	  	function instantTransition(result)
+	  	{
+			$("#container").children().css({backgroundColor: "rgb("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+")"});
+	  		for(i=0; i<result.length; i++)
+	  		{
+	  			var r = clamp(Math.round(result[i].r), 0, 255);
+	  			var g = clamp(Math.round(result[i].g), 0, 255);
+	  			var b = clamp(Math.round(result[i].b), 0, 255);
+	  			var a = 0;
+	  			if(a_ != -1)
+	  				a = a_;
+	  			else
+	  				a = clamp(result[i].a,0,1);
+	  			var id = [Math.round(result[i].x), Math.round(result[i].y)];
+	  			$("#cell"+id.join("-")).css({backgroundColor: "rgba("+r+","+g+","+b+","+a+")"});
+	  		}
+	  	}
   	}
 
-  	function instantTransition(result)
-  	{
-		$("#container").children().css({backgroundColor: "rgb("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+")"});
-  		for(i=0; i<result.length; i++)
-  		{
-  			var r = clamp(Math.round(result[i].r), 0, 255);
-  			var g = clamp(Math.round(result[i].g), 0, 255);
-  			var b = clamp(Math.round(result[i].b), 0, 255);
-  			var id = [Math.round(result[i].x), Math.round(result[i].y)]; //need x,y,r,g,b
-  			$("#cell"+id.join("-")).css({backgroundColor: "rgb("+r+","+g+","+b+")"});
-  		}
-  	}
 
     // INITIALIZATION
     function init () {
@@ -702,8 +703,10 @@
   		//Init Music
   		if(online)
   		{
+  			console.log("I am online")
 	    	initSoundAnalyzer();
-	    	loadSound("https://www.freesound.org/data/previews/256/256458_4772965-lq.mp3");
+	    	//loadSound("https://www.freesound.org/data/previews/256/256458_4772965-lq.mp3");
+	    	loadSound("Music/test.mp3");
   		}
   		else
   		{
