@@ -1,12 +1,16 @@
 body {
-  background-color: darkgrey; }
-  body.experimental #container {
-    -webkit-transform: scale(2.6);
-        -ms-transform: scale(2.6);
-            transform: scale(2.6);
-    left: 30.6%;
-    top: 316px;
-    position: relative; }
+  background-color: black;
+  -webkit-transition: background-color 1s;
+          transition: background-color 1s; }
+  body .star {
+    background-color: white;
+    height: 2px;
+    width: 2px;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 10;
+    -webkit-transition: left 10s ease-in, top 10s ease-in;
+            transition: left 10s ease-in, top 10s ease-in; }
 
 .inputform {
   position: fixed;
@@ -20,9 +24,10 @@ body {
 
 #container {
   overflow: hidden;
-  margin: 0 auto; }
+  margin: 0 auto;
+  z-index: 50; }
   #container .cell {
-    background-color: grey;
+    background-color: rgba(255, 255, 255, 0.25);
     float: left;
     margin-left: 1px;
     margin-bottom: 1px; }

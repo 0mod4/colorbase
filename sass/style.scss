@@ -1,12 +1,14 @@
 body {
-  background-color: darkgrey;
-  &.experimental {
-    #container {
-      transform: scale(2.6);
-      left: 30.6%;
-      top: 316px;
-      position: relative;
-    }
+  background-color: black;
+  transition: background-color 1s;
+  .star {
+    background-color: rgba(255,255,255,1);
+    height: 2px;
+    width: 2px;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 10;
+    transition: left 10s ease-in, top 10s ease-in
   }
 }
 .inputform {
@@ -23,8 +25,9 @@ body {
 #container {
   overflow: hidden;
   margin: 0 auto;
+  z-index: 50;
   .cell {
-    background-color: grey;
+    background-color: rgba(255,255,255,0.25);
     float: left;
     margin-left: 1px;
     margin-bottom: 1px;
