@@ -8,7 +8,6 @@
     var musicColor = [255,0,0,1];
     var moveColor = [255,142,0,1];
 
-    var online = true;
     var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
 	            navigator.mozGetUserMedia || navigator.msGetUserMedia);
 
@@ -163,28 +162,21 @@
     }
 
  	function toggleMusic() {
- 		if(online)
+ 		if($("#playMusic").prop( "checked" )) //start music
  		{
-	 		if($("#playMusic").prop( "checked" )) //start music
-	 		{
-	 			playSound();
-	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
-	        		if(musicIntervalID == 0)
-	        			musicIntervalID = window.setInterval(function() {updateMusicTable();})
-	 		}
-	 		else
-	 		{
-	 			stopSound();
-				if(musicIntervalID > 0) //an interval is active, stop it
-				{
-					clearInterval(musicIntervalID);
-					musicIntervalID = 0;
-				}
-	 		}
+ 			playSound();
+        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
+        		if(musicIntervalID == 0)
+        			musicIntervalID = window.setInterval(function() {updateMusicTable();})
  		}
  		else
  		{
- 			alert("No Internet - no music!");
+ 			stopSound();
+			if(musicIntervalID > 0) //an interval is active, stop it
+			{
+				clearInterval(musicIntervalID);
+				musicIntervalID = 0;
+			}
  		}
  	}
     // log if an error occurs
@@ -573,125 +565,140 @@
 
     // INITIALIZATION
     function init () {
-
-			var margin_of_cells = [];
-
-			function getMarginOfCells () {
-				var cell = $('.cell');
-				margin_of_cells[0] = parseInt(cell.css('margin-top'), 10);
-				margin_of_cells[1] = parseInt(cell.css('margin-right'), 10);
-				margin_of_cells[2] = parseInt(cell.css('margin-bottom'), 10);
-				margin_of_cells[3] = parseInt(cell.css('margin-left'), 10);
-			}
-
-			// helper functions
-			function getCellSize () {
-				var viewport_height = $(window).height()
-				var cell_size = 0
-				var combined_vertical_margin_of_cells = margin_of_cells[0] + margin_of_cells[2]
-				cell_size = Math.floor(viewport_height / rows - combined_vertical_margin_of_cells)
-				return cell_size
-			}
-
-			// get pixel width of container based on number of columns
-			function getContainerWidth () {
-				var cell = $('.cell');
-				var width_of_all_cells = cell.width() * cols;
-				var combined_margin_left_of_cells = margin_of_cells[3] * cols;
-				var container_width = width_of_all_cells + combined_margin_left_of_cells;
-				return container_width
-			}
-
-			// get pixel offset to center container vertically
-			function getVerticalContainerOffset (container_width) {
-				var container_height = container_width // because it´s a square, d´oh!
-				var viewport_height = $(window).height()
-				var vertical_container_offset = Math.round((viewport_height - container_height) / 2)
-				return vertical_container_offset
-			}
-
-			// build grid
-			function buildGrid(rows, cols) {
-				for (var i = 0; i < rows; i++) {
-					for (var j = 0; j < cols; j++) {
-						var id = [j, i]
-						$('#container').append("<div class='cell' id=cell" + id.join('-') + '></div>')
-					}
-				}
-			}
-
-            // starfield
-            function createStars(number_of_stars) {
-                var viewport_height = $(window).height();
-                var viewport_width = $(window).width();
-                console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
-                for (var i = 0; i < number_of_stars; i++) {
-                    var star_size = Math.round(Math.random() * 2 + 1)
-                    var star_position_x = Math.random() * 100;
-                    var star_position_y = Math.random() * 100;
-                    $('body').append("<div class='star id" + i + "'></div>");
-                    // set initial start position and size
-                    $('body .star.id' + i).css(
-                        {
-                            'left': star_position_x + '%',
-                            'top': star_position_y + '%',
-                            'height': star_size,
-                            'width': star_size
-                        }
-                    );
-                    // set end position
-                    var star_position_offset = $('body .star.id' + i).offset();
-                    var star_position_x_in_px = star_position_offset.left;
-                    var star_position_y_in_px = star_position_offset.top;
-                    console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
-                    var viewport_center_x = viewport_width / 2;
-                    var viewport_center_y = viewport_height / 2;
-                    var temp_position_x = star_position_x_in_px - viewport_center_x;
-                    var temp_position_y = star_position_y_in_px - viewport_center_y;
-                    console.log("Temp-Position-X: "+temp_position_x);
-                    console.log("Temp-Position-Y: "+temp_position_y);
-                    var absolute_x = Math.abs(temp_position_x);
-                    var absolute_y = Math.abs(temp_position_y);
-                    var multiplier = null;
-                    if ( absolute_x > absolute_y) {
-                        multiplier = viewport_center_x / absolute_x;
-                    } else {
-                        multiplier = viewport_center_y / absolute_y;
+        // starfield
+        function createStars(number_of_stars) {
+            var viewport_height = $(window).height();
+            var viewport_width = $(window).width();
+            console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
+            for (var i = 0; i < number_of_stars; i++) {
+                var star_size = Math.round(Math.random() * 2 + 1)
+                var star_position_x = Math.random() * 100;
+                var star_position_y = Math.random() * 100;
+                $('body').append("<div class='star id" + i + "'></div>");
+                // set initial start position and size
+                $('body .star.id' + i).css(
+                    {
+                        'left': star_position_x + '%',
+                        'top': star_position_y + '%',
+                        'height': star_size,
+                        'width': star_size
                     }
-                    console.log("Multiplier ist "+multiplier);
-                    var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
-                    var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
-                    console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
-                    $('body .star.id' + i).css(
-                        {
-                            'left': star_final_position_x + 'px',
-                            'top': star_final_position_y + 'px'
-                        }
-                    );
+                );
+                // set end position
+                var star_position_offset = $('body .star.id' + i).offset();
+                var star_position_x_in_px = star_position_offset.left;
+                var star_position_y_in_px = star_position_offset.top;
+                console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
+                var viewport_center_x = viewport_width / 2;
+                var viewport_center_y = viewport_height / 2;
+                var temp_position_x = star_position_x_in_px - viewport_center_x;
+                var temp_position_y = star_position_y_in_px - viewport_center_y;
+                console.log("Temp-Position-X: "+temp_position_x);
+                console.log("Temp-Position-Y: "+temp_position_y);
+                var absolute_x = Math.abs(temp_position_x);
+                var absolute_y = Math.abs(temp_position_y);
+                var multiplier = null;
+                if ( absolute_x > absolute_y) {
+                    multiplier = viewport_center_x / absolute_x;
+                } else {
+                    multiplier = viewport_center_y / absolute_y;
                 }
+                console.log("Multiplier ist "+multiplier);
+                var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
+                var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
+                console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
+                $('body .star.id' + i).css(
+                    {
+                        'left': star_final_position_x + 'px',
+                        'top': star_final_position_y + 'px'
+                    }
+                );
             }
-
-			buildGrid(rows, cols);
-			getMarginOfCells();
-            createStars(100);
-
-			// set dimensions of all cells
-			$('.cell').css(
-				{
-					'width': getCellSize() + 'px',
-					'height': getCellSize() + 'px'
-				}
-			)
-			// set container size and offset
-			$('#container').css(
-				{
-					'width': getContainerWidth() + 'px',
-					'margin-top': getVerticalContainerOffset(getContainerWidth()) + 'px'
-				}
-			)
+        }
+        createStars(100);
 
   		//db connection
   		db = new SQL.Database();
+
+  		//Init Music
+	    initSoundAnalyzer();
+	    loadSound("Music/test.mp3");
+
+  		if(video)
+  			initVideo();
+  		else
+  			alert("Your browser does not support GetUserMedia()");
+
+		var dimension = $('input[name="Dimension"]:checked').val();
+
+		init2D();
+    }
+
+    function init2D () {
+
+		var margin_of_cells = [];
+
+		function getMarginOfCells () {
+			var cell = $('.cell');
+			margin_of_cells[0] = parseInt(cell.css('margin-top'), 10);
+			margin_of_cells[1] = parseInt(cell.css('margin-right'), 10);
+			margin_of_cells[2] = parseInt(cell.css('margin-bottom'), 10);
+			margin_of_cells[3] = parseInt(cell.css('margin-left'), 10);
+		}
+
+		// helper functions
+		function getCellSize () {
+			var viewport_height = $(window).height()
+			var cell_size = 0
+			var combined_vertical_margin_of_cells = margin_of_cells[0] + margin_of_cells[2]
+			cell_size = Math.floor(viewport_height / rows - combined_vertical_margin_of_cells)
+			return cell_size
+		}
+
+		// get pixel width of container based on number of columns
+		function getContainerWidth () {
+			var cell = $('.cell');
+			var width_of_all_cells = cell.width() * cols;
+			var combined_margin_left_of_cells = margin_of_cells[3] * cols;
+			var container_width = width_of_all_cells + combined_margin_left_of_cells;
+			return container_width
+		}
+
+		// get pixel offset to center container vertically
+		function getVerticalContainerOffset (container_width) {
+			var container_height = container_width // because it´s a square, d´oh!
+			var viewport_height = $(window).height()
+			var vertical_container_offset = Math.round((viewport_height - container_height) / 2)
+			return vertical_container_offset
+		}
+
+		// build grid
+		function buildGrid(rows, cols) {
+			for (var i = 0; i < rows; i++) {
+				for (var j = 0; j < cols; j++) {
+					var id = [j, i]
+					$('#container').append("<div class='cell' id=cell" + id.join('-') + '></div>')
+				}
+			}
+		}
+
+		buildGrid(rows, cols);
+		getMarginOfCells();
+
+		// set dimensions of all cells
+		$('.cell').css(
+			{
+				'width': getCellSize() + 'px',
+				'height': getCellSize() + 'px'
+			}
+		)
+		// set container size and offset
+		$('#container').css(
+			{
+				'width': getContainerWidth() + 'px',
+				'margin-top': getVerticalContainerOffset(getContainerWidth()) + 'px'
+			}
+		)
 
   		//create tables
   		createEmptyData();
@@ -699,26 +706,12 @@
   		createMusicTable();
   		createVideoTable();
   		createMoveTable();
+  	}
 
-  		//Init Music
-  		if(online)
-  		{
-  			console.log("I am online")
-	    	initSoundAnalyzer();
-	    	//loadSound("https://www.freesound.org/data/previews/256/256458_4772965-lq.mp3");
-	    	loadSound("Music/test.mp3");
-  		}
-  		else
-  		{
-  			alert("No internet - no music");
-  		}
+  	function cleanUp2D() {
 
-  		if(video)
-  		{
-  			initVideo();
-  		}
-  		else
-  		{
-  			alert("Your browser does not support GetUserMedia()");
-  		}
+  	}
+
+  	function cleanUp3D() {
+  		
   	}
