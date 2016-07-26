@@ -1,14 +1,17 @@
 body {
+  background-image: url("../img/background_nebula.jpg");
+  background-size: cover;
+  background-blend-mode: hard-light;
   background-color: black;
-  transition: background-color 1s;
+  overflow: hidden;
   .star {
     background-color: rgba(255,255,255,1);
     height: 2px;
     width: 2px;
     border-radius: 50%;
     position: absolute;
-    z-index: 10;
-    transition: left 10s ease-in, top 10s ease-in
+    z-index: 1;
+    transition: left 10s ease-in, top 10s ease-in, background 3s ease;
   }
 }
 .inputform {
@@ -26,6 +29,8 @@ body {
   overflow: hidden;
   margin: 0 auto;
   z-index: 50;
+  position: relative;
+  opacity: 0.9;
   .cell {
     background-color: rgba(255,255,255,0.25);
     float: left;

@@ -1,16 +1,18 @@
 body {
+  background-image: url("../img/background_nebula.jpg");
+  background-size: cover;
+  background-blend-mode: hard-light;
   background-color: black;
-  -webkit-transition: background-color 1s;
-          transition: background-color 1s; }
+  overflow: hidden; }
   body .star {
     background-color: white;
     height: 2px;
     width: 2px;
     border-radius: 50%;
     position: absolute;
-    z-index: 10;
-    -webkit-transition: left 10s ease-in, top 10s ease-in;
-            transition: left 10s ease-in, top 10s ease-in; }
+    z-index: 1;
+    -webkit-transition: left 10s ease-in, top 10s ease-in, background 3s ease;
+            transition: left 10s ease-in, top 10s ease-in, background 3s ease; }
 
 .inputform {
   position: fixed;
@@ -25,7 +27,9 @@ body {
 #container {
   overflow: hidden;
   margin: 0 auto;
-  z-index: 50; }
+  z-index: 50;
+  position: relative;
+  opacity: 0.9; }
   #container .cell {
     background-color: rgba(255, 255, 255, 0.25);
     float: left;

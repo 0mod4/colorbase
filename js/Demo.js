@@ -585,10 +585,9 @@
 
 			// helper functions
 			function getCellSize () {
-				var viewport_height = $(window).height()
 				var cell_size = 0
 				var combined_vertical_margin_of_cells = margin_of_cells[0] + margin_of_cells[2]
-				cell_size = Math.floor(viewport_height / rows - combined_vertical_margin_of_cells)
+				cell_size = Math.floor(viewport['height'] / rows - combined_vertical_margin_of_cells)
 				return cell_size
 			}
 
@@ -604,8 +603,7 @@
 			// get pixel offset to center container vertically
 			function getVerticalContainerOffset (container_width) {
 				var container_height = container_width // because it´s a square, d´oh!
-				var viewport_height = $(window).height()
-				var vertical_container_offset = Math.round((viewport_height - container_height) / 2)
+				var vertical_container_offset = Math.round((viewport['height'] - container_height) / 2)
 				return vertical_container_offset
 			}
 
@@ -619,60 +617,104 @@
 				}
 			}
 
+            // looks for stars that have left the viewport and resets their position to random center
+            function updateStars() {
+                var all_stars = $('.star');
+                for (var i = 0; i < all_stars.length; i++) {
+                    star = all_stars[i];
+                    if (star.offsetLeft > viewport['width'] || star.offsetTop > viewport['height'] ||
+                        star.offsetLeft < 0 || star.offsetTop < 0
+                    ) {
+                        var new_position = new Array();
+                        new_position['left'] = viewport['center_x'] + (Math.random() *100 - 50);
+                        new_position['top'] = viewport['center_y'] + (Math.random() *100 - 50);
+                        var current_transition_css = $(star).css('transition')
+                        $(star).css({
+                            'transition': 'none',
+                            'background-color': 'rgba(255,255,255,0)'
+                        })
+                        $(star).offset(new_position);
+                        $('body .star.id' + i).offset();
+                        $(star).css({
+                            'transition': current_transition_css,
+                            'background-color': 'rgba(255,255,255,'+Math.random()+')'
+                        })
+                        animateStars(i);
+                    }
+                }
+            }
+
             // starfield
             function createStars(number_of_stars) {
-                var viewport_height = $(window).height();
-                var viewport_width = $(window).width();
-                console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
+                var star_position = new Array();
+
                 for (var i = 0; i < number_of_stars; i++) {
                     var star_size = Math.round(Math.random() * 2 + 1)
-                    var star_position_x = Math.random() * 100;
-                    var star_position_y = Math.random() * 100;
+                    star_position['x'] = Math.random() * 100;
+                    star_position['y'] = Math.random() * 100;
+
                     $('body').append("<div class='star id" + i + "'></div>");
                     // set initial start position and size
                     $('body .star.id' + i).css(
                         {
-                            'left': star_position_x + '%',
-                            'top': star_position_y + '%',
+                            'left': star_position['x'] + '%',
+                            'top': star_position['y'] + '%',
                             'height': star_size,
-                            'width': star_size
+                            'width': star_size,
+                            'background-color': 'rgba(255,255,255,'+Math.random()+')',
+                            'transition': 'left '+(Math.random()*(11-8)+8)+'s ease-in, top '+(Math.random()*(11-8)+8)+'s ease-in, background-color 3s'
                         }
                     );
-                    // set end position
-                    var star_position_offset = $('body .star.id' + i).offset();
-                    var star_position_x_in_px = star_position_offset.left;
-                    var star_position_y_in_px = star_position_offset.top;
-                    console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
-                    var viewport_center_x = viewport_width / 2;
-                    var viewport_center_y = viewport_height / 2;
-                    var temp_position_x = star_position_x_in_px - viewport_center_x;
-                    var temp_position_y = star_position_y_in_px - viewport_center_y;
-                    console.log("Temp-Position-X: "+temp_position_x);
-                    console.log("Temp-Position-Y: "+temp_position_y);
-                    var absolute_x = Math.abs(temp_position_x);
-                    var absolute_y = Math.abs(temp_position_y);
-                    var multiplier = null;
-                    if ( absolute_x > absolute_y) {
-                        multiplier = viewport_center_x / absolute_x;
-                    } else {
-                        multiplier = viewport_center_y / absolute_y;
-                    }
-                    console.log("Multiplier ist "+multiplier);
-                    var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
-                    var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
-                    console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
-                    $('body .star.id' + i).css(
-                        {
-                            'left': star_final_position_x + 'px',
-                            'top': star_final_position_y + 'px'
-                        }
-                    );
+                    animateStars(i);
                 }
             }
 
+            // animate stars
+            function animateStars(i) {
+                var temp_pos = new Array();
+                var absolute = new Array();
+                var multiplier = null;
+                var star_position_in_px = $('body .star.id' + i).offset();
+
+                // calculate final position
+                temp_pos['x'] = star_position_in_px['left'] - viewport['center_x'];
+                temp_pos['y'] = star_position_in_px['top'] - viewport['center_y'];
+                absolute['x'] = Math.abs(temp_pos['x']);
+                absolute['y'] = Math.abs(temp_pos['y']);
+                if ( absolute['x'] > absolute['y']) {
+                    multiplier = (viewport['center_x'] + 10) / absolute['x'];
+                } else {
+                    multiplier = (viewport['center_y'] + 10) / absolute['y'];
+                }
+
+                console.log("Aktuelle Position: X="+Math.round(star_position_in_px['left'])+" Y="+Math.round(star_position_in_px['top']));
+                console.log("Endpunktwert X "+Math.round(multiplier * temp_pos['x'] + viewport['center_x']));
+                console.log("Endpunktwert Y "+Math.round(multiplier * temp_pos['y'] + viewport['center_y']));
+                // set end position
+                $('body .star.id' + i).css(
+                    {
+                        'left': (multiplier * temp_pos['x'] + viewport['center_x']) + 'px',
+                        'top': (multiplier * temp_pos['y'] + viewport['center_y']) + 'px'
+                    }
+                );
+            }
+
+            // globals
+            var viewport = new Array();
+            viewport['height'] = $(window).height();
+            viewport['width'] = $(window).width();
+            viewport['center_x'] = viewport['width'] / 2;
+            viewport['center_y'] = viewport['height'] / 2;
+
+            // grid creation
 			buildGrid(rows, cols);
 			getMarginOfCells();
-            createStars(100);
+
+            // starfield background
+            createStars(200);
+            window.setInterval(function() {
+                    updateStars(), 1000
+            })
 
 			// set dimensions of all cells
 			$('.cell').css(
