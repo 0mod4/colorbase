@@ -8,6 +8,91 @@
 </head>
 
 <script src='js/Demo.js'></script>
+<script src='js/Demo3D.js'></script>
+
+<script>
+	function init() 
+	{
+        // starfield
+        function createStars(number_of_stars) {
+            var viewport_height = $(window).height();
+            var viewport_width = $(window).width();
+            console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
+            for (var i = 0; i < number_of_stars; i++) {
+                var star_size = Math.round(Math.random() * 2 + 1)
+                var star_position_x = Math.random() * 100;
+                var star_position_y = Math.random() * 100;
+                $('body').append("<div class='star id" + i + "'></div>");
+                // set initial start position and size
+                $('body .star.id' + i).css(
+                    {
+                        'left': star_position_x + '%',
+                        'top': star_position_y + '%',
+                        'height': star_size,
+                        'width': star_size
+                    }
+                );
+                // set end position
+                var star_position_offset = $('body .star.id' + i).offset();
+                var star_position_x_in_px = star_position_offset.left;
+                var star_position_y_in_px = star_position_offset.top;
+                console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
+                var viewport_center_x = viewport_width / 2;
+                var viewport_center_y = viewport_height / 2;
+                var temp_position_x = star_position_x_in_px - viewport_center_x;
+                var temp_position_y = star_position_y_in_px - viewport_center_y;
+                console.log("Temp-Position-X: "+temp_position_x);
+                console.log("Temp-Position-Y: "+temp_position_y);
+                var absolute_x = Math.abs(temp_position_x);
+                var absolute_y = Math.abs(temp_position_y);
+                var multiplier = null;
+                if ( absolute_x > absolute_y) {
+                    multiplier = viewport_center_x / absolute_x;
+                } else {
+                    multiplier = viewport_center_y / absolute_y;
+                }
+                console.log("Multiplier ist "+multiplier);
+                var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
+                var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
+                console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
+                $('body .star.id' + i).css(
+                    {
+                        'left': star_final_position_x + 'px',
+                        'top': star_final_position_y + 'px'
+                    }
+                );
+            }
+        }
+        createStars(100);
+
+		if($('input[name="Transition"]:checked').val() == "3")
+		{
+			var threeD = new ThreeD()
+			threeD.init()
+		}
+		else
+		{
+			//var twoD = new TwoD()
+			//(new TwoD()).init()
+			TwoD.init()
+		}
+	}
+	function clear()
+	{
+		if($('input[name="Transition"]:checked').val() == "3")
+			clear3D();
+		else
+			clear2D();
+		init();
+	}
+	function execute()
+	{
+		if($('input[name="Transition"]:checked').val() == "3")
+			execute3D();
+		else
+			execute2D();
+	}
+</script>
 
 <body onload="init()">
 
