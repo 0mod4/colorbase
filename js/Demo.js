@@ -638,9 +638,6 @@ var TwoD = (function() {
 	            multiplier = (viewport['center_y'] + 10) / absolute['y'];
 	        }
 
-	        console.log("Aktuelle Position: X="+Math.round(star_position_in_px['left'])+" Y="+Math.round(star_position_in_px['top']));
-	        console.log("Endpunktwert X "+Math.round(multiplier * temp_pos['x'] + viewport['center_x']));
-	        console.log("Endpunktwert Y "+Math.round(multiplier * temp_pos['y'] + viewport['center_y']));
 	        // set end position
 	        $('body .star.id' + i).css(
 	            {
@@ -662,7 +659,7 @@ var TwoD = (function() {
 	    window.setInterval(function() {
 	            updateStars(), 1000
 	    })
-    
+
 	  		//db connection
 	  		db = new SQL.Database();
 
