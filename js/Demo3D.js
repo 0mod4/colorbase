@@ -1,7 +1,8 @@
 //http://www.smartjava.org/examples/webaudio/example2.html
-var TwoD = (function() {
+	function ThreeD() {
 	    var rows = 50;
 	    var cols = 50;
+	    var peter = 100;
 	    var error = "";
 	    var emptyData = [];
 	    var parsedSelect;
@@ -37,46 +38,44 @@ var TwoD = (function() {
 		    {
 		    	for(var y=0; y<cols; y++)
 		    	{
-		    		emptyData.push("("+x+","+y+","+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
+		    		for(var z=0; z<peter; z++)
+		    			emptyData.push("("+x+","+y+","+z+","+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
 		    	}
 		    }
 	    }
 
 	    function createDefaultTable() {
-		    db.run("CREATE TABLE dummy (x,y,r,g,b,a);");
+		    db.run("CREATE TABLE dummy (x,y,z,r,g,b,a);");
 		    var values = [];
 		    for(var x=0; x<rows; x++)
 		    {
 		    	for(var y=0; y<cols; y++)
 		    	{
-		    		values.push("("+x);
-		    		values.push(y);
-		    		if(x==y)
+		    		for(var z=0; z<peter; z++)
 		    		{
-		    			values.push("200, 20, 100, 1)");
-		    		}
-		    		else
-		    		{
-		    			values.push("0,50,200,0.5)");
-		    		}
+			    		values.push("("+x+","+y+","+z);
+			    		if(x==y)
+			    		{
+			    			values.push(z/parseFloat(peter)*255+", 20, 100, 1)");
+			    		}
+			    		else
+			    		{
+			    			values.push("0,50,200,0.5)");
+			    		}
+			    	}
 		    	}
 		    }
 	    	db.run("INSERT INTO dummy VALUES "+values.join());
 	    }
 
 	    function createMusicTable() {
-	    	db.run("CREATE TABLE MUSIC (x,y,r,g,b,a);");
+	    	db.run("CREATE TABLE MUSIC (x,y,z,r,g,b,a);");
 	    	db.run("INSERT INTO MUSIC VALUES "+emptyData.join());
 	    }
 
 	    function createVideoTable() {
-	    	db.run("CREATE TABLE VIDEO (x,y,r,g,b,a);");
+	    	db.run("CREATE TABLE VIDEO (x,y,z,r,g,b,a);");
 	   		db.run("INSERT INTO VIDEO VALUES "+emptyData.join());
-	    }
-
-	    function createMoveTable() {
-	    	db.run("CREATE TABLE MOVE (x,y,r,g,b,a);");
-	   		db.run("INSERT INTO MOVE VALUES "+emptyData.join());
 	    }
 
 	    /*TABLE UPDATES*/
@@ -204,10 +203,10 @@ var TwoD = (function() {
 		        // get the average, bincount is fftsize / 2
 		        var array =  new Uint8Array(soundAnalyzer.frequencyBinCount);
 		        soundAnalyzer.getByteFrequencyData(array);
-		        getSoundBars(array, $("#numSoundBars").val());
+		        getVol(array);
 		    }
 
-		    function getSoundBars(array, n) {
+		    function getVol(array) {
 		        soundBars = [];
 		        var length = array.length;
 		 		var barWidth = Math.floor(length/n);
@@ -435,7 +434,7 @@ var TwoD = (function() {
 			return false;
 	    }
 
-	    function execute2D(){
+	    function execute3D(){
 			var statement = $("#queryText").val();
 
 			clearIntervals();
@@ -463,7 +462,7 @@ var TwoD = (function() {
 	    }
 
 		function query(statement) {
-			console.log("query2D");
+			console.log("query3D");
 			var result = [];
 			var stmt = db.prepare(statement);
 			if(stmt)
@@ -564,9 +563,59 @@ var TwoD = (function() {
 		  	}
 	  	}
 
-
 	    // INITIALIZATION
 	    function init() {
+	        // starfield
+	        function createStars(number_of_stars) {
+	            var viewport_height = $(window).height();
+	            var viewport_width = $(window).width();
+	            console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
+	            for (var i = 0; i < number_of_stars; i++) {
+	                var star_size = Math.round(Math.random() * 2 + 1)
+	                var star_position_x = Math.random() * 100;
+	                var star_position_y = Math.random() * 100;
+	                $('body').append("<div class='star id" + i + "'></div>");
+	                // set initial start position and size
+	                $('body .star.id' + i).css(
+	                    {
+	                        'left': star_position_x + '%',
+	                        'top': star_position_y + '%',
+	                        'height': star_size,
+	                        'width': star_size
+	                    }
+	                );
+	                // set end position
+	                var star_position_offset = $('body .star.id' + i).offset();
+	                var star_position_x_in_px = star_position_offset.left;
+	                var star_position_y_in_px = star_position_offset.top;
+	                console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
+	                var viewport_center_x = viewport_width / 2;
+	                var viewport_center_y = viewport_height / 2;
+	                var temp_position_x = star_position_x_in_px - viewport_center_x;
+	                var temp_position_y = star_position_y_in_px - viewport_center_y;
+	                console.log("Temp-Position-X: "+temp_position_x);
+	                console.log("Temp-Position-Y: "+temp_position_y);
+	                var absolute_x = Math.abs(temp_position_x);
+	                var absolute_y = Math.abs(temp_position_y);
+	                var multiplier = null;
+	                if ( absolute_x > absolute_y) {
+	                    multiplier = viewport_center_x / absolute_x;
+	                } else {
+	                    multiplier = viewport_center_y / absolute_y;
+	                }
+	                console.log("Multiplier ist "+multiplier);
+	                var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
+	                var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
+	                console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
+	                $('body .star.id' + i).css(
+	                    {
+	                        'left': star_final_position_x + 'px',
+	                        'top': star_final_position_y + 'px'
+	                    }
+	                );
+	            }
+	        }
+	        createStars(100);
 
 	  		//db connection
 	  		db = new SQL.Database();
@@ -581,7 +630,6 @@ var TwoD = (function() {
 	  			alert("Your browser does not support GetUserMedia()");
 
 			var dimension = $('input[name="Dimension"]:checked').val();
-
 
 			var margin_of_cells = [];
 
@@ -656,10 +704,6 @@ var TwoD = (function() {
 	  	}
 
 	  	function cleanUp() {
-
+	  		
 	  	}
-
-	  	return {
-	  		init : function() {init();}
-	  	};
-})();
+	}

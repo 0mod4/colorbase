@@ -8,6 +8,52 @@
 </head>
 
 <script src='js/Demo.js'></script>
+<script src='js/Demo3D.js'></script>
+<script src='js/globals.js'></script>
+<script src='js/starfield.js'></script>
+
+<script>
+	function toggleStarfield() {
+		//start stars
+ 		if ($("#starfield_toggle").prop( "checked" )) {
+ 			$().createStarfield(100)
+ 		} else {
+ 			$().removeStarfield()
+ 		}
+ 	}
+
+	function init() 
+	{
+
+		if($('input[name="Transition"]:checked').val() == "3")
+		{
+			var threeD = new ThreeD()
+			threeD.init()
+		}
+		else
+		{
+			//var twoD = new TwoD()
+			//(new TwoD()).init()
+			TwoD.init()
+
+		}
+	}
+	function clear()
+	{
+		if($('input[name="Transition"]:checked').val() == "3")
+			clear3D();
+		else
+			clear2D();
+		init();
+	}
+	function execute()
+	{
+		if($('input[name="Transition"]:checked').val() == "3")
+			execute3D();
+		else
+			execute2D();
+	}
+</script>
 
 <body onload="init()">
 
@@ -33,6 +79,8 @@
 					<label for="2D">2D</label>
 					<input type="radio" id="3D" name="Dimension" value="3">
 					<label for="3D">3D</label>
+					<label for="starfield_toggle">OMG it's full of stars!</label>
+					<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
 				</fieldset>
 			</form>
  	</div>
