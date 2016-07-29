@@ -5,14 +5,18 @@
 	<script src="js/jquery.min.js"></script>
 	<link rel="stylesheet" href="css/normalize.css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
+	<script src='js/Demo.js'></script>
+	<script src='js/Demo3D.js'></script>
+	<script src='js/globals.js'></script>
+	<script src='js/starfield.js'></script>
+	<script src='js/gui.js'></script>
 </head>
 
-<script src='js/Demo.js'></script>
-<script src='js/Demo3D.js'></script>
-<script src='js/globals.js'></script>
-<script src='js/starfield.js'></script>
-
 <script>
+	$().ready(function() {
+		$().initGUI();
+	})
+
 	function toggleStarfield() {
 		//start stars
  		if ($("#starfield_toggle").prop( "checked" )) {
@@ -58,31 +62,35 @@
 <body onload="init()">
 
 	<div class="inputform">
-			<form action="#" name="form">
-				<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy">
-				<input name="queryButton" type="button" id="queryButton" onClick="execute()" value="my query">
-			</form>
-			<form name="options">
-				<fieldset>
-					<input type="radio" id="in" name="Transition" value="in">
-					<label for="in">Instant</label>
-					<input type="radio" id="del" name="Transition" value="del">
-					<label for="del">Delay</label>
-				</fieldset>
-				<fieldset>
-					<label for="playMusic">Music</label>
-					<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
-					<input type="text" id="numSoundBars" size="40" value="5">
-					<label for="useVideo">Video</label>
-					<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-					<input type="radio" id="2D" name="Dimension" value="2">
-					<label for="2D">2D</label>
-					<input type="radio" id="3D" name="Dimension" value="3">
-					<label for="3D">3D</label>
-					<label for="starfield_toggle">OMG it's full of stars!</label>
-					<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
-				</fieldset>
-			</form>
+		<form action="#" onsubmit="execute()" name="form" autocomplete="off">
+			<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy" autocomplete="off">
+			<!-- <input name="queryButton" type="button" id="queryButton" onClick="execute()" value="my query"> -->
+		</form>
+ 	</div>
+
+ 	<div class="optionform">
+		<a href="#" class="toggle">Toggle Settings</a>
+ 		<form name="options">
+			<fieldset>
+				<input type="radio" id="in" name="Transition" value="in">
+				<label for="in">Instant</label>
+				<input type="radio" id="del" name="Transition" value="del">
+				<label for="del">Delay</label>
+			</fieldset>
+			<fieldset>
+				<label for="playMusic">Music</label>
+				<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
+				<input type="text" id="numSoundBars" size="40" value="5">
+				<label for="useVideo">Video</label>
+				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
+				<input type="radio" id="2D" name="Dimension" value="2">
+				<label for="2D">2D</label>
+				<input type="radio" id="3D" name="Dimension" value="3">
+				<label for="3D">3D</label>
+				<label for="starfield_toggle">OMG it's full of stars!</label>
+				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
+			</fieldset>
+		</form>
  	</div>
 
   <div id="videoDiv">

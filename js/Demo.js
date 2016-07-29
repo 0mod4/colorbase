@@ -573,7 +573,7 @@ var TwoD = (function() {
 
 	  		//Init Music
 		    initSoundAnalyzer();
-		    loadSound("Music/test.mp3");
+		    // loadSound("Music/test.mp3"); #TODO remove before commit!
 
 	  		if(video)
 	  			initVideo();

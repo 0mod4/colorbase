@@ -10,6 +10,8 @@ body {
   background-color: black;
   overflow: hidden; }
   body .star {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
     background-color: white;
     height: 2px;
     width: 2px;
@@ -19,6 +21,57 @@ body {
     -webkit-transition: left 10s ease-in, top 10s ease-in, background 3s ease;
             transition: left 10s ease-in, top 10s ease-in, background 3s ease; }
 
+@-webkit-keyframes text_flicker {
+  0% {
+    opacity: 1; }
+  10% {
+    opacity: 0.66; }
+  15% {
+    opacity: 0.86; }
+  18% {
+    opacity: 0.56; }
+  30% {
+    opacity: 0.94; }
+  35% {
+    opacity: 0.53; }
+  40% {
+    opacity: 0.78; }
+  55% {
+    opacity: 0.81; }
+  60% {
+    opacity: 0.57; }
+  80% {
+    opacity: 0.84; }
+  85% {
+    opacity: 0.51; }
+  100% {
+    opacity: 1; } }
+
+@keyframes text_flicker {
+  0% {
+    opacity: 1; }
+  10% {
+    opacity: 0.66; }
+  15% {
+    opacity: 0.86; }
+  18% {
+    opacity: 0.56; }
+  30% {
+    opacity: 0.94; }
+  35% {
+    opacity: 0.53; }
+  40% {
+    opacity: 0.78; }
+  55% {
+    opacity: 0.81; }
+  60% {
+    opacity: 0.57; }
+  80% {
+    opacity: 0.84; }
+  85% {
+    opacity: 0.51; }
+  100% {
+    opacity: 1; } }
 .inputform {
   position: fixed;
   padding: 10px;
@@ -37,9 +90,35 @@ body {
     font-size: 250%;
     color: #bfffbc;
     float: left;
-    width: 80%; }
+    width: 80%;
+    -webkit-animation: text_flicker 0.3s alternate infinite;
+            animation: text_flicker 0.3s alternate infinite; }
     .inputform #queryText:active, .inputform #queryText:focus {
       outline: none !important; }
+
+.optionform {
+  width: 70%;
+  padding: 10px;
+  margin-left: 25%;
+  position: absolute;
+  bottom: 0px; }
+  .optionform .toggle {
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    -webkit-transition: background 0.5s ease, color 0.5s ease;
+            transition: background 0.5s ease, color 0.5s ease;
+    background-color: transparent;
+    margin: 0 0 5px 2px;
+    padding: 6px 10px;
+    border: 1px solid white;
+    font-style: uppercase; }
+    .optionform .toggle:hover {
+      background-color: white;
+      color: black; }
+  .optionform form[name='options'] {
+    background: rgba(0, 0, 0, 0.75);
+    color: white; }
 
 #container {
   overflow: hidden;

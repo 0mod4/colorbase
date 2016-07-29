@@ -13,6 +13,7 @@ body {
   background-color: black;
   overflow: hidden;
   .star {
+    transform: translate3d(0, 0, 0);
     background-color: rgba(255,255,255,1);
     height: 2px;
     width: 2px;
@@ -23,10 +24,49 @@ body {
   }
 }
 
+// animations for the UI
+@keyframes text_flicker {
+  0% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.66;
+  }
+  15% {
+    opacity: 0.86;
+  }
+  18% {
+    opacity: 0.56;
+  }
+  30% {
+    opacity: 0.94;
+  }
+  35% {
+    opacity: 0.53;
+  }
+  40% {
+    opacity: 0.78;
+  }
+  55%{
+    opacity: 0.81;
+  }
+  60% {
+    opacity: 0.57;
+  }
+  80% {
+    opacity: 0.84;
+  }
+  85% {
+    opacity: 0.51;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 // the main form to enter queries
 .inputform {
   position: fixed;
-  //background-color: rgba(0,0,0,0.5);
   padding: 10px;
   margin: 20px;
   float: left;
@@ -47,10 +87,38 @@ body {
     color: #bfffbc;
     float: left;
     width: 80%;
+    animation: text_flicker 0.3s alternate infinite;
     &:active,&:focus {
       outline: none !important;
     }
   }
+}
+
+.optionform {
+  .toggle {
+    color: rgb(255,255,255);
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.5s ease, color 0.5s ease;
+    background-color: transparent;
+    margin: 0 0 5px 2px;
+    padding: 6px 10px;
+    border: 1px solid rgb(255,255,255);
+    font-style: uppercase;
+    &:hover {
+      background-color: rgb(255,255,255);
+      color: rgb(0,0,0)
+    }
+  }
+  form[name='options'] {
+    background: rgba(0,0,0,0.75);
+    color: rgb(255,255,255);
+  }
+  width: 70%;
+  padding: 10px;
+  margin-left: 25%;
+  position: absolute;
+  bottom: 0px;
 }
 
 #container {

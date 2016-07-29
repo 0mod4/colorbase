@@ -30,10 +30,10 @@
 
 		// animate stars
 		function animateStars(i) {
-		    var temp_pos = new Array();
-		    var absolute = new Array();
-		    var multiplier = null;
-		    var star_position_in_px = $('body .star.id' + i).offset();
+		    var temp_pos = new Array(),
+		    	absolute = new Array(),
+		    	multiplier = null,
+		    	star_position_in_px = $('body .star.id' + i).offset();
 
 		    // calculate final position
 		    temp_pos['x'] = star_position_in_px.left - viewport['center_x'];
@@ -98,3 +98,4 @@
     };
  
 }( jQuery ));
+console.log('starfield module initialized');
