@@ -36,12 +36,18 @@
 			})
     	}
 
+    	function setFocusToQueryInput() {
+    		input_form.query_input.focus()
+    	}
+
     	// center the lower option form dynamically because CSS won't work with absolute positioning
     	centerOptionForm();
     	// enable toggling of the option form element
     	enableToggleOptionForm();
+    	// initially set focus on query input field
+    	setFocusToQueryInput();
     	// simulate blinking cursor at end of input
-	    input_form.query_input.on('input click', function() {
+	    input_form.query_input.on('input click keydown', function() {
 	    	blinkingCursor()
 	    });
     };
