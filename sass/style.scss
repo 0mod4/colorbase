@@ -64,6 +64,21 @@ body {
   }
 }
 
+@keyframes cursor_pulse {
+  0% {
+    opacity: 0;
+  }
+  49% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 1
+  }
+}
+
 // the main form to enter queries
 .inputform {
   position: fixed;
@@ -71,26 +86,40 @@ body {
   margin: 20px;
   float: left;
   z-index: 99;
+  animation: text_flicker 0.3s alternate infinite;
     form {
       color: white;
     }
   #queryText {
     background: transparent;
+    //color: #bfffbc;
+    color: transparent;
+    text-shadow:  0 0 10px #6eff00,
+                  0 0 10px #6eff00, 
+                  0 0 10px #6eff00,
+                  0 0 0 #bfffbc;
     border: none;
     margin: 0;
     padding: 0;
     font-family: "meyrinregular";
-    text-shadow:  0 0 10px #6eff00, 
-                  0 0 10px #6eff00, 
-                  0 0 10px #6eff00;
     font-size: 250%;
-    color: #bfffbc;
     float: left;
-    width: 80%;
-    animation: text_flicker 0.3s alternate infinite;
+    width: 95%;
     &:active,&:focus {
       outline: none !important;
     }
+  }
+  .marker {
+    position: absolute;
+    animation: cursor_pulse 1s infinite;
+    height: 41px;
+    width: 20px;
+    display: block;
+    background-size: 100%;
+    background-repeat: repeat;
+    box-shadow:  0 0 10px #6eff00;
+    background-image: 
+      repeating-linear-gradient(rgba(191,255,188,1) 0%, rgba(191,255,188,1) 2.5%, rgba(110,255,0,0.5) 2.6%, rgba(110,255,0,0.5) 5%);
   }
 }
 

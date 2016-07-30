@@ -72,29 +72,59 @@ body {
     opacity: 0.51; }
   100% {
     opacity: 1; } }
+@-webkit-keyframes cursor_pulse {
+  0% {
+    opacity: 0; }
+  49% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  99% {
+    opacity: 1; } }
+@keyframes cursor_pulse {
+  0% {
+    opacity: 0; }
+  49% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  99% {
+    opacity: 1; } }
 .inputform {
   position: fixed;
   padding: 10px;
   margin: 20px;
   float: left;
-  z-index: 99; }
+  z-index: 99;
+  -webkit-animation: text_flicker 0.3s alternate infinite;
+          animation: text_flicker 0.3s alternate infinite; }
   .inputform form {
     color: white; }
   .inputform #queryText {
     background: transparent;
+    color: transparent;
+    text-shadow: 0 0 10px #6eff00, 0 0 10px #6eff00,  0 0 10px #6eff00, 0 0 0 #bfffbc;
     border: none;
     margin: 0;
     padding: 0;
     font-family: "meyrinregular";
-    text-shadow: 0 0 10px #6eff00,  0 0 10px #6eff00,  0 0 10px #6eff00;
     font-size: 250%;
-    color: #bfffbc;
     float: left;
-    width: 80%;
-    -webkit-animation: text_flicker 0.3s alternate infinite;
-            animation: text_flicker 0.3s alternate infinite; }
+    width: 95%; }
     .inputform #queryText:active, .inputform #queryText:focus {
       outline: none !important; }
+  .inputform .marker {
+    position: absolute;
+    -webkit-animation: cursor_pulse 1s infinite;
+            animation: cursor_pulse 1s infinite;
+    height: 41px;
+    width: 20px;
+    display: block;
+    background-size: 100%;
+    background-repeat: repeat;
+    box-shadow: 0 0 10px #6eff00;
+    background-image: -webkit-repeating-linear-gradient(#bfffbc 0%, #bfffbc 2.5%, rgba(110, 255, 0, 0.5) 2.6%, rgba(110, 255, 0, 0.5) 5%);
+    background-image: repeating-linear-gradient(#bfffbc 0%, #bfffbc 2.5%, rgba(110, 255, 0, 0.5) 2.6%, rgba(110, 255, 0, 0.5) 5%); }
 
 .optionform {
   width: 70%;
