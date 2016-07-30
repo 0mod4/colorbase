@@ -568,6 +568,71 @@ var TwoD = (function() {
 	    // INITIALIZATION
 	    function init() {
 
+	    // looks for stars that have left the viewport and resets their position to random center
+	    function updateStars() {
+	        var all_stars = $('.star');
+	        for (var i = 0; i < all_stars.length; i++) {
+	            star = all_stars[i];
+	            if (star.offsetLeft > viewport['width'] || star.offsetTop > viewport['height'] ||
+	                star.offsetLeft < 0 || star.offsetTop < 0
+	            ) {
+	                var new_position = new Array();
+	                new_position['left'] = viewport['center_x'] + (Math.random() *100 - 50);
+	                new_position['top'] = viewport['center_y'] + (Math.random() *100 - 50);
+	                var current_transition_css = $(star).css('transition')
+	                $(star).css({
+	                    'transition': 'none',
+	                    'background-color': 'rgba(255,255,255,0)'
+	                })
+	                $(star).offset(new_position);
+	                $('body .star.id' + i).offset();
+	                $(star).css({
+	                    'transition': current_transition_css,
+	                    'background-color': 'rgba(255,255,255,'+Math.random()+')'
+	                })
+	                animateStars(i);
+	            }
+	        }
+	    }
+
+	    // starfield
+	    function createStars(number_of_stars) {
+	        var star_position = new Array();
+
+	        for (var i = 0; i < number_of_stars; i++) {
+	        	console.log("i = "+i+" number_of_stars = "+number_of_stars);
+	            var star_size = Math.round(Math.random() * 2 + 1)
+	            star_position['x'] = Math.random() * 100;
+	            star_position['y'] = Math.random() * 100;
+
+	            $('body').append("<div class='star id" + i + "'></div>");
+	            // set initial start position and size
+	            $('body .star.id' + i).css(
+	                {
+	                    'left': star_position['x'] + '%',
+	                    'top': star_position['y'] + '%',
+	                    'height': star_size,
+	                    'width': star_size,
+	                    'background-color': 'rgba(255,255,255,'+Math.random()+')',
+	                    'transition': 'left '+(Math.random()*(11-8)+8)+'s ease-in, top '+(Math.random()*(11-8)+8)+'s ease-in, background-color 3s'
+	                }
+	            );
+	            animateStars(i);
+	        }
+	    }
+
+	    // animate stars
+	    function animateStars(i) {
+	        var temp_pos = new Array();
+	        var absolute = new Array();
+	        var multiplier = null;
+	        var star_position_in_px = $('body .star.id' + i).offset();
+
+	    createStars(200);
+	    window.setInterval(function() {
+	            updateStars(), 1000
+	    })
+
 	  		//db connection
 	  		db = new SQL.Database();
 
