@@ -40,12 +40,21 @@
     		input_form.query_input.focus()
     	}
 
+    	function preventReloadingInputQuery() {
+    		input_form.self.submit(function(e) {
+			    e.preventDefault();
+			});
+    	}
+
     	// center the lower option form dynamically because CSS won't work with absolute positioning
     	centerOptionForm();
     	// enable toggling of the option form element
     	enableToggleOptionForm();
-    	// initially set focus on query input field
+    	// initially set focus on query input field and update cursor position and prevent input query
+    	// from reloading page in submit
     	setFocusToQueryInput();
+    	blinkingCursor();
+    	preventReloadingInputQuery();
     	// simulate blinking cursor at end of input
 	    input_form.query_input.on('input click keydown', function() {
 	    	blinkingCursor()

@@ -2,7 +2,6 @@
 var TwoD = (function() {
 	    var rows = 50;
 	    var cols = 50;
-	    var error = "";
 	    var emptyData = [];
 	    var parsedSelect;
 	    var clearColor = [255,255,255,0.25];
@@ -435,7 +434,7 @@ var TwoD = (function() {
 			return false;
 	    }
 
-	    function execute2D(){
+	    function execute(){
 			var statement = $("#queryText").val();
 
 			clearIntervals();
@@ -463,7 +462,6 @@ var TwoD = (function() {
 	    }
 
 		function query(statement) {
-			console.log("query2D");
 			var result = [];
 			var stmt = db.prepare(statement);
 			if(stmt)
@@ -479,7 +477,7 @@ var TwoD = (function() {
 			}
 			if(result.length > 0)
 			{
-				showResult2D(result);
+				showResult(result);
 			}
 			else
 			{
@@ -488,7 +486,7 @@ var TwoD = (function() {
 			}
 	  	}
 
-	  	function showResult2D(result)
+	  	function showResult(result)
 	  	{
 	  		var a_ = -1;
 	  		//check if given result is of needed format
@@ -567,8 +565,7 @@ var TwoD = (function() {
 
 	    // INITIALIZATION
 	    function init() {
-
-	  		//db connection
+	    	console.log("init2D")
 	  		db = new SQL.Database();
 
 	  		//Init Music
@@ -581,7 +578,6 @@ var TwoD = (function() {
 	  			alert("Your browser does not support GetUserMedia()");
 
 			var dimension = $('input[name="Dimension"]:checked').val();
-
 
 			var margin_of_cells = [];
 
@@ -653,13 +649,22 @@ var TwoD = (function() {
 	  		createMusicTable();
 	  		createVideoTable();
 	  		createMoveTable();
-	  	}
+	    }
 
-	  	function cleanUp() {
+	    function cleanup()
+	    {
+	    	db.run("DROP TABLE dummy;");
+	    	db.run("DROP TABLE VIDEO;");
+	    	db.run("DROP TABLE MUSIC;");
+	    	db.run("DROP TABLE MOVE;");
+	    	db = null;
 
-	  	}
+	    	$('#container .cell').remove();
+	    }
 
 	  	return {
-	  		init : function() {init();}
+	  		init : function() {init();},
+	  		execute : function() {execute();},
+	  		cleanup : function() {cleanup();}
 	  	};
 })();

@@ -1,8 +1,6 @@
 //http://www.smartjava.org/examples/webaudio/example2.html
-	function ThreeD() {
-	    var rows = 50;
-	    var cols = 50;
-	    var peter = 100;
+var ThreeD = (function() {
+
 	    var error = "";
 	    var emptyData = [];
 	    var parsedSelect;
@@ -434,7 +432,7 @@
 			return false;
 	    }
 
-	    function execute3D(){
+	    function execute(){
 			var statement = $("#queryText").val();
 
 			clearIntervals();
@@ -462,7 +460,7 @@
 	    }
 
 		function query(statement) {
-			console.log("query3D");
+			console.log("query");
 			var result = [];
 			var stmt = db.prepare(statement);
 			if(stmt)
@@ -564,146 +562,179 @@
 	  	}
 
 	    // INITIALIZATION
-	    function init() {
-	        // starfield
-	        function createStars(number_of_stars) {
-	            var viewport_height = $(window).height();
-	            var viewport_width = $(window).width();
-	            console.log("Viewport ist "+viewport_width+"px breit und "+viewport_height+"px hoch.");
-	            for (var i = 0; i < number_of_stars; i++) {
-	                var star_size = Math.round(Math.random() * 2 + 1)
-	                var star_position_x = Math.random() * 100;
-	                var star_position_y = Math.random() * 100;
-	                $('body').append("<div class='star id" + i + "'></div>");
-	                // set initial start position and size
-	                $('body .star.id' + i).css(
-	                    {
-	                        'left': star_position_x + '%',
-	                        'top': star_position_y + '%',
-	                        'height': star_size,
-	                        'width': star_size
-	                    }
-	                );
-	                // set end position
-	                var star_position_offset = $('body .star.id' + i).offset();
-	                var star_position_x_in_px = star_position_offset.left;
-	                var star_position_y_in_px = star_position_offset.top;
-	                console.log("Stern startet in X = "+star_position_x_in_px+" und Y = "+star_position_y_in_px);
-	                var viewport_center_x = viewport_width / 2;
-	                var viewport_center_y = viewport_height / 2;
-	                var temp_position_x = star_position_x_in_px - viewport_center_x;
-	                var temp_position_y = star_position_y_in_px - viewport_center_y;
-	                console.log("Temp-Position-X: "+temp_position_x);
-	                console.log("Temp-Position-Y: "+temp_position_y);
-	                var absolute_x = Math.abs(temp_position_x);
-	                var absolute_y = Math.abs(temp_position_y);
-	                var multiplier = null;
-	                if ( absolute_x > absolute_y) {
-	                    multiplier = viewport_center_x / absolute_x;
-	                } else {
-	                    multiplier = viewport_center_y / absolute_y;
-	                }
-	                console.log("Multiplier ist "+multiplier);
-	                var star_final_position_x = multiplier * temp_position_x + viewport_center_x;
-	                var star_final_position_y = multiplier * temp_position_y + viewport_center_y;
-	                console.log("Stern Endposition ist X = "+star_final_position_x+" und Y = "+star_final_position_y);
-	                $('body .star.id' + i).css(
-	                    {
-	                        'left': star_final_position_x + 'px',
-	                        'top': star_final_position_y + 'px'
-	                    }
-	                );
-	            }
+	    var gl;
+	    function initGL(canvas) {
+	        try {
+	            gl = canvas.getContext("experimental-webgl");
+	            gl.viewportWidth = canvas.width;
+	            gl.viewportHeight = canvas.height;
+	        } 
+	        catch (e) 
+	        {console.log(e);
 	        }
-	        createStars(100);
+	        if (!gl) 
+	        {
+	            alert("Could not initialize WebGL");
+	        }
+	    }
 
-	  		//db connection
-	  		db = new SQL.Database();
+	    function getShader(gl, id) {
+	        var shaderScript = document.getElementById(id);
+	        console.log(shaderScript)
+	        if (!shaderScript) {
+	            return null;
+	        }
 
-	  		//Init Music
-		    initSoundAnalyzer();
-		    loadSound("Music/test.mp3");
+	        var str = "";
+	        var k = shaderScript.firstChild;
+	        while (k) {
+	        	console.log("has childs")
+	            if (k.nodeType == 3) {
+	                str += k.textContent;
+	            }
+	            k = k.nextSibling;
+	        }
 
-	  		if(video)
-	  			initVideo();
-	  		else
-	  			alert("Your browser does not support GetUserMedia()");
+	        console.log("hier: "+str)
 
-			var dimension = $('input[name="Dimension"]:checked').val();
+	        var shader;
+	        if (shaderScript.type == "x-shader/x-fragment") {
+	            shader = gl.createShader(gl.FRAGMENT_SHADER);
+	        } else if (shaderScript.type == "x-shader/x-vertex") {
+	            shader = gl.createShader(gl.VERTEX_SHADER);
+	        } else {
+	            return null;
+	        }
 
-			var margin_of_cells = [];
+	        gl.shaderSource(shader, str);
+	        gl.compileShader(shader);
 
-			function getMarginOfCells () {
-				var cell = $('.cell');
-				margin_of_cells[0] = parseInt(cell.css('margin-top'), 10);
-				margin_of_cells[1] = parseInt(cell.css('margin-right'), 10);
-				margin_of_cells[2] = parseInt(cell.css('margin-bottom'), 10);
-				margin_of_cells[3] = parseInt(cell.css('margin-left'), 10);
-			}
+	        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+	            alert("Error in shader: "+gl.getShaderInfoLog(shader));
+	            return null;
+	        }
 
-			// helper functions
-			function getCellSize () {
-				var viewport_height = $(window).height()
-				var cell_size = 0
-				var combined_vertical_margin_of_cells = margin_of_cells[0] + margin_of_cells[2]
-				cell_size = Math.floor(viewport_height / rows - combined_vertical_margin_of_cells)
-				return cell_size
-			}
+	        return shader;
+	    }
 
-			// get pixel width of container based on number of columns
-			function getContainerWidth () {
-				var cell = $('.cell');
-				var width_of_all_cells = cell.width() * cols;
-				var combined_margin_left_of_cells = margin_of_cells[3] * cols;
-				var container_width = width_of_all_cells + combined_margin_left_of_cells;
-				return container_width
-			}
 
-			// get pixel offset to center container vertically
-			function getVerticalContainerOffset (container_width) {
-				var container_height = container_width // because it´s a square, d´oh!
-				var viewport_height = $(window).height()
-				var vertical_container_offset = Math.round((viewport_height - container_height) / 2)
-				return vertical_container_offset
-			}
+    	var shaderProgram;
 
-			// build grid
-			function buildGrid(rows, cols) {
-				for (var i = 0; i < rows; i++) {
-					for (var j = 0; j < cols; j++) {
-						var id = [j, i]
-						$('#container').append("<div class='cell' id=cell" + id.join('-') + '></div>')
-					}
-				}
-			}
+	    function initShaders() {
+	        var fragmentShader = getShader(gl, "shader-fs");
+	        var vertexShader = getShader(gl, "shader-vs");
 
-			buildGrid(rows, cols);
-			getMarginOfCells();
+	        shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
 
-			// set dimensions of all cells
-			$('.cell').css(
-				{
-					'width': getCellSize() + 'px',
-					'height': getCellSize() + 'px'
-				}
-			)
-			// set container size and offset
-			$('#container').css(
-				{
-					'width': getContainerWidth() + 'px',
-					'margin-top': getVerticalContainerOffset(getContainerWidth()) + 'px'
-				}
-			)
+	        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+	            console.log("Linker Error");
+	        }
 
-	  		//create tables
-	  		createEmptyData();
-	  		createDefaultTable();
-	  		createMusicTable();
-	  		createVideoTable();
-	  		createMoveTable();
+	        gl.useProgram(shaderProgram);
+
+	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	        shaderProgram.Nx = gl.getUniformLocation(shaderProgram, "Nx");
+	        shaderProgram.Ny = gl.getUniformLocation(shaderProgram, "Ny");
+	        shaderProgram.Nz = gl.getUniformLocation(shaderProgram, "Nz");
+	    }
+
+    var mvMatrix = mat4.create();
+    var pMatrix = mat4.create();
+
+    function setUniforms() {
+        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+        gl.uniform1f(shaderProgram.Nx, rows);
+        gl.uniform1f(shaderProgram.Ny, cols);
+        gl.uniform1f(shaderProgram.Nz, peter);
+    }
+
+    var triangleVertexPositionBuffer;
+    var squareVertexPositionBuffer;
+
+    function initBuffers() {
+        triangleVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+        var vertices = [
+             0.0,  1.0,  0.0,
+            -1.0, -1.0,  0.0,
+             1.0, -1.0,  0.0
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        triangleVertexPositionBuffer.itemSize = 3;
+        triangleVertexPositionBuffer.numItems = 3;
+
+        squareVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+        vertices = [
+             1.0,  1.0,  0.0,
+            -1.0,  1.0,  0.0,
+             1.0, -1.0,  0.0,
+            -1.0, -1.0,  0.0
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        squareVertexPositionBuffer.itemSize = 3;
+        squareVertexPositionBuffer.numItems = 4;
+    }
+
+
+    function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+        mat4.identity(mvMatrix);
+
+        mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        setUniforms();
+        gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+
+        mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        setUniforms();
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    }
+
+
+	    function init() {
+	    	//create canvas to draw in
+	    	$('#container').append("<canvas class='drawCanvas' id='drawCanvas' style='border: none;' width='500' height='500'></canvas>")
+		    var canvas = document.getElementById('drawCanvas');
+		    initGL(canvas);
+		    initShaders();
+		    initBuffers();
+
+		    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		    gl.enable(gl.DEPTH_TEST);
+
+		    drawScene();
 	  	}
 
-	  	function cleanUp() {
-	  		
-	  	}
-	}
+	    function cleanup()
+	    {
+	    	db.run("DROP TABLE dummy;");
+	    	db.run("DROP TABLE VIDEO;");
+	    	db.run("DROP TABLE MUSIC;");
+	    	db.run("DROP TABLE MOVE;");
+	    	db = null;
+
+	    	$('#container .nestedElement').remove();
+	    }
+
+	  	return {
+	  		init : function() {init();},
+	  		execute : function() {execute();},
+	  		cleanup : function() {cleanup();}
+	  	};
+})();
