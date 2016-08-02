@@ -96,23 +96,25 @@ body {
   margin: 20px;
   float: left;
   z-index: 99;
+  width: auto;
   -webkit-animation: text_flicker 0.3s alternate infinite;
           animation: text_flicker 0.3s alternate infinite; }
   .inputform form {
-    color: white; }
-  .inputform #queryText {
-    background: transparent;
-    color: transparent;
-    text-shadow: 0 0 10px #6eff00, 0 0 10px #6eff00,  0 0 10px #6eff00, 0 0 0 #ffffbc;
-    border: none;
-    margin: 0;
-    padding: 0;
-    font-family: "meyrinregular";
-    font-size: 250%;
-    float: left;
-    width: 95%; }
-    .inputform #queryText:active, .inputform #queryText:focus {
-      outline: none !important; }
+    color: white;
+    width: 100%; }
+    .inputform form #queryText {
+      background: transparent;
+      color: transparent;
+      text-shadow: 0 0 10px #6eff00, 0 0 10px #6eff00, 0 0 10px #6eff00, 0 0 0 #ffffbc;
+      border: none;
+      margin: 0;
+      padding: 0;
+      font-family: "meyrinregular";
+      font-size: 250%;
+      float: left;
+      width: 100%; }
+      .inputform form #queryText:active, .inputform form #queryText:focus {
+        outline: none !important; }
   .inputform .marker {
     position: absolute;
     -webkit-animation: cursor_pulse 1s infinite;
