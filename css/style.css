@@ -8,7 +8,8 @@ body {
   background-size: cover;
   background-blend-mode: hard-light;
   background-color: black;
-  overflow: hidden; }
+  overflow: hidden;
+  z-index: 0; }
   body .star {
     -webkit-transform: translate3d(0, 0, 0);
             transform: translate3d(0, 0, 0);
@@ -95,7 +96,7 @@ body {
   padding: 10px;
   margin: 20px;
   float: left;
-  z-index: 99;
+  z-index: 10;
   width: auto;
   -webkit-animation: text_flicker 0.3s alternate infinite;
           animation: text_flicker 0.3s alternate infinite; }
@@ -129,6 +130,7 @@ body {
     background-image: repeating-linear-gradient(#bfffbc 0%, #bfffbc 2.5%, rgba(110, 255, 0, 0.5) 2.6%, rgba(110, 255, 0, 0.5) 5%); }
 
 .optionform {
+  z-index: 10;
   width: 70%;
   padding: 10px;
   margin-left: 25%;
@@ -155,7 +157,7 @@ body {
 #container {
   overflow: hidden;
   margin: 0 auto;
-  z-index: 50;
+  z-index: 2;
   position: relative;
   opacity: 0.9; }
   #container .cell {

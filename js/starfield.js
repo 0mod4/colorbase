@@ -1,6 +1,9 @@
 (function ($) {
   var starfield_interval_id
 
+  // TODO Refactor to use translate(position) instead transition: left & top
+  // Should make this whole construct a lot faster and not collide as much with Annas animations
+
   $.fn.createStarfield = function (number_of_stars) {
     // create initial random starfield
     function createStars (number_of_stars) {

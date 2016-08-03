@@ -28,8 +28,8 @@
     }
 
     function blinkingCursor () {
-      var caret_position = input_form.query_input.caret('offset')
-      var cursor_position = caret_position.left - input_form.marker.width()
+      var caret_offset = input_form.query_input.caret('offset')
+      var cursor_position = caret_offset.left - input_form.marker.width()
       input_form.marker.css({
         'left': cursor_position + 'px'
       })
@@ -55,7 +55,7 @@
     blinkingCursor()
     preventReloadingInputQuery()
     // simulate blinking cursor at end of input
-    input_form.query_input.on('input click keydown', function () {
+    input_form.query_input.on('input click keydown keyup', function () {
       blinkingCursor()
     })
   }
