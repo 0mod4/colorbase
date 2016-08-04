@@ -12,6 +12,7 @@ body {
   background-blend-mode: hard-light;
   background-color: black;
   overflow: hidden;
+  z-index: 0; // background level
   .star {
     transform: translate3d(0, 0, 0);
     background-color: rgba(255,255,255,1);
@@ -19,7 +20,7 @@ body {
     width: 2px;
     border-radius: 50%;
     position: absolute;
-    z-index: 1;
+    z-index: 1; // background elements level
     transition: left 10s ease-in, top 10s ease-in, background 3s ease;
   }
 }
@@ -85,28 +86,29 @@ body {
   padding: 10px;
   margin: 20px;
   float: left;
-  z-index: 99;
+  z-index: 10; // gui level
+  width: auto;
   animation: text_flicker 0.3s alternate infinite;
-    form {
-      color: white;
-    }
-  #queryText {
-    background: transparent;
-    //color: #bfffbc;
-    color: transparent;
-    text-shadow:  0 0 10px #6eff00,
-                  0 0 10px #6eff00, 
-                  0 0 10px #6eff00,
-                  0 0 0 #ffffbc;
-    border: none;
-    margin: 0;
-    padding: 0;
-    font-family: "meyrinregular";
-    font-size: 250%;
-    float: left;
-    width: 95%;
-    &:active,&:focus {
-      outline: none !important;
+  form {
+    color: white;
+    width: 100%;
+    #queryText {
+      background: transparent;
+      color: transparent;
+      text-shadow:  0 0 10px #6eff00,
+      0 0 10px #6eff00,
+      0 0 10px #6eff00,
+      0 0 0 #ffffbc;
+      border: none;
+      margin: 0;
+      padding: 0;
+      font-family: "meyrinregular";
+      font-size: 250%;
+      float: left;
+      width: 100%;
+      &:active,&:focus {
+        outline: none !important;
+      }
     }
   }
   .marker {
@@ -118,12 +120,18 @@ body {
     background-size: 100%;
     background-repeat: repeat;
     box-shadow:  0 0 10px #6eff00;
-    background-image: 
+    background-image:
       repeating-linear-gradient(rgba(191,255,188,1) 0%, rgba(191,255,188,1) 2.5%, rgba(110,255,0,0.5) 2.6%, rgba(110,255,0,0.5) 5%);
   }
 }
 
 .optionform {
+  z-index: 10; // gui level
+  width: 70%;
+  padding: 10px;
+  margin-left: 25%;
+  position: absolute;
+  bottom: 0px;
   .toggle {
     color: rgb(255,255,255);
     text-decoration: none;
@@ -143,17 +151,12 @@ body {
     background: rgba(0,0,0,0.75);
     color: rgb(255,255,255);
   }
-  width: 70%;
-  padding: 10px;
-  margin-left: 25%;
-  position: absolute;
-  bottom: 0px;
 }
 
 #container {
   overflow: hidden;
   margin: 0 auto;
-  z-index: 50;
+  z-index: 2; // display level
   position: relative;
   opacity: 0.9;
   .cell {
