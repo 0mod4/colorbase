@@ -31,25 +31,31 @@
 
 		const float EPS = 1e-3;
 
-		float box(vec3 p, float l)
-		// box of dimensions l*l*l
+		float sphere(vec3 p, float r)
+		// sphere of radius r
 		{
-			return length(max(abs(p)-vec3(l),0.));
+			return length(p)-r;
 		}
 
-		float boxGrid(vec3 p, float l, float g, vec3 n)
-		// n.x*n.y*n.z box grid with lattice constant g of boxes with dimensions l*l*l
+		float box(vec3 p, vec3 l)
+		// box of dimensions l.x*l.y*l.z
+		{
+			return length(max(abs(p)-l,0.));
+		}
+
+		float boxGrid(vec3 p, vec3 l, float g, vec3 n)
+		// n.x*n.y*n.z box grid with lattice constant g of boxes with dimensions l.x*l.y*l.z
 		{
 			vec3 q = mod(p,g) - .5*g;
-			// TODO boundaries are missing
-			return box(q, l);
+			return max(box(q, l), box(p,n*g));
 		}
 
 		float scene(vec3 p)
 		// wrapper function for the scene
 		{
-			vec3 n = vec3(10);
-			return boxGrid(p, .2, .8, n);
+			vec3 n = vec3(2,2,2);
+			return boxGrid(p, vec3(.2), .5, n);
+			//return max(sphere(p, .5), box(p, vec3(.35)));
 		}
 
 		struct Hit
@@ -65,19 +71,33 @@
 		// given ray origin ro and ray direction rd returns the hit position, if nothing was hit returns ro
 		{
 			float t = 0.;
-			float maxT = 20.;
+			float maxT = 50.;
 
-			const int IMAX = 128;
+			Hit hit = Hit(vec3(0.), 0., false, false, false);
+			vec3 p;
+			float d;
+			const int IMAX = 256;
 			for (int i=0; i<IMAX; i++)
 			{
-				vec3 p = ro + t*rd;
-				float d = scene(p);
-				if (d < EPS) return Hit(p, d, true, false, false);
+				p = ro + t*rd;
+				d = scene(p);
+				if (d < EPS)
+				{
+					hit.hit = true;
+					break;
+				}
 				t += d;
-				if (t > maxT) return Hit(p, d, false, true, false);
+				if (t > maxT)
+				{
+					hit.t = true;
+					break;
+				}
+				if (i == IMAX-1) hit.it = true;
 			}
-
-			return Hit(ro, 0., false, false, true); // too many iterations
+			hit.d = d;
+			if (!hit.it) hit.p = p;
+			else hit.p = ro;
+			return hit;
 		}
 
 
@@ -88,13 +108,12 @@
 			return normalize(vec3(d - scene(p-e.xyy), d - scene(p-e.yxy), d - scene(p-e.yyx)));
 		}
 
-		vec4 getColor(Hit hit)
+		vec4 getColor(Hit hit, vec3 lightPosition)
 		// get color of scene at position p
 		{
-			vec3 lightPosition = vec3(1.,1.,1.);
-			vec3 ambiCol = vec3(.01,.01,.05);
-			vec3 diffCol = vec3(.1,.2,1);
-			vec3 specCol = vec3(1);
+			vec3 ambiCol = vec3(.05,.05,.09);
+			vec3 diffCol = vec3(.8,.7,.6);
+			vec3 specCol = vec3(1); // TODO spec doesn't seem to work?!
 
 			vec3 n = getNormal(hit.p);
 			float lambertian = max(dot(n, normalize(lightPosition - hit.p)), 0.); // diffuse
@@ -113,26 +132,39 @@
 
 		vec4 getBackgroundColor(Hit hit)
 		{
-			return vec4(0,0,1,1);
+			return vec4(0);
+		}
+
+
+		vec3 transformPos(vec3 v)
+		{
+			return (uMVMatrix * vec4(v,1)).xyz;
+		}
+
+		vec3 transformDir(vec3 d)
+		{
+			return (uMVMatrix * vec4(d,0)).xyz;
 		}
 
 		void main()
 		{
 			vec2 uv = (2.*gl_FragCoord.xy - viewport) / min(viewport.x, viewport.y);
 
-			vec3 ro = vec3(uv, 1.);
+			vec3 ro = vec3(uv, 5.);
 			vec3 rd = normalize(vec3(uv*.6, -1.));
-			ro = (uMVMatrix * vec4(ro,1)).xyz;
-			rd = (uMVMatrix * vec4(rd,0)).xyz;
+			ro = transformPos(ro);
+			rd = transformDir(rd);
+			vec3 lightPos = transformPos(vec3(1));
 
 			// ray marching
 			Hit hit = raytrace(ro, rd);
 
 			// shading
-			vec4 color;
+			vec4 color = vec4(1,0,0,1);
 			if (hit.hit) // we hit something
 			{
-				color = getColor(hit);
+				//color = getColor(hit, lightPos); // TODO not yet working with mod scene
+				color = vec4(.6,.7,.8,1.);
 			}
 			else if (hit.t) // t > maxT
 			{
@@ -140,7 +172,7 @@
 			}
 			else if (hit.it) // out of iterations
 			{
-				color = vec4(1,0,1,1);
+				color = vec4(1,0,1,1); // for debugging
 			}
 			gl_FragColor = color;
 			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport); // for testing
