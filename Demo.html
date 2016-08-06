@@ -17,11 +17,11 @@
 	</script>
 
 	<script id="shader-fs" type="x-shader/x-fragment">
-	    precision mediump float;
+		precision mediump float;
 		uniform sampler2D uSampler;
 
-	    uniform mat4 uMVMatrix;
-	    uniform mat4 uMVMatrixInverse;
+		uniform mat4 uMVMatrix;
+		uniform mat4 uMVMatrixInverse;
 		uniform vec2 viewport;
 		uniform int Nx;
 		uniform int Ny;
@@ -29,56 +29,46 @@
 		uniform int texWidth;
 		uniform bool twoD;
 
-		float EPS = 0.002;
+		float EPS = 2e-3;
 
 		float box(vec3 p, float l)
 		{
 			return length(max(abs(p)-vec3(l),0.));
 		}
 
+		float scene(vec3 p)
+		{
+			return box(p, .2);
+		}
 
-		vec4 raytrace(vec3 ro, vec3 rd)
+		vec3 raytrace(vec3 ro, vec3 rd)
 		{
 			float maxZ = 20.;
 			float tmin = 0.;
 
 			float t = tmin;
 
-			const int imax = 64;
-			int icpy;
-			vec3 pos;
-			float dist;
-
-			for(int i=0; i<imax; i++) //man darf kein while, wtf!!!
+			const int IMAX = 64;
+			for(int i=0; i<IMAX; i++) //man darf kein while, wtf!!!
 			{
-				icpy = i;
-				pos = ro + t*rd;
-				dist = box(pos, 0.5);
-				if(dist < EPS || pos.z > maxZ)
-					break;
+				vec3 pos = ro + t*rd;
+				float dist = scene(pos);
+				if (dist < EPS) return pos;
+				if (pos.z > maxZ) return ro;
 				t += dist;
 			}
 
-			if(icpy >= imax)
-				pos.z = maxZ;
+			return ro; // to many iterations
+		}
 
-			vec4 color = vec4(0);
-			if (dist < EPS) // we hit something \o/
-			{ 
-				color = vec4(0,1,0,1);
-			} 
-			else // no hit :-(
-			{ 
-				color = vec4(1,0,1,1);
-			}
+		vec4 getColor(vec3 pos)
+		{
+			return vec4(1,0,0,1);
+		}
 
-			return color;
-
-			//lasse denhier jetzt einfach direkt die Farbe zurück geben, dann muss man sich in der main nicht mit pos rumschlagen, 
-			//du wolltest ja irgendwie testen ob der zurückgegebene Vektor < EPS lang ist, was sollte das denn dann sein? Die Distanz ist ein float
-			//und die Position muss ja nicht 'kurz sein'
-
-			//Hab spaß :) 
+		vec4 getBackgroundColor()
+		{
+			return vec4(0,0,1,1);
 		}
 
 		void main()
@@ -90,9 +80,20 @@
 			ro = (uMVMatrix * vec4(ro,1)).xyz;
 			rd = (uMVMatrix * vec4(rd,0)).xyz;
 
-			vec4 hitCol = raytrace(ro, rd);
-			gl_FragColor = hitCol;
+			// ray marching
+			vec3 hitPos = raytrace(ro, rd);
 
+			// shading
+			vec4 color;
+			if (distance(ro, hitPos) > EPS) // we hit something
+			{
+				color = getColor(hitPos);
+			}
+			else
+			{
+				color = getBackgroundColor();
+			}
+			gl_FragColor = color;
 			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport);
 		}
 	</script>
