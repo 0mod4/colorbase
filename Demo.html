@@ -47,7 +47,7 @@
 		// n.x*n.y*n.z box grid with lattice constant g of boxes with dimensions l.x*l.y*l.z
 		{
 			vec3 q = mod(p,g) - .5*g;
-			return max(box(q, l), box(p,n*g));
+			return max(box(q, l), box(p,n*g/2.));
 		}
 
 		float scene(vec3 p)
