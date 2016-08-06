@@ -18,146 +18,82 @@
 
 	<script id="shader-fs" type="x-shader/x-fragment">
 	    precision mediump float;
+		uniform sampler2D uSampler;
 
 	    uniform mat4 uMVMatrix;
 	    uniform mat4 uMVMatrixInverse;
-		uniform int viewportWidth;
-		uniform int viewportHeight;
+		uniform vec2 viewport;
 		uniform int Nx;
 		uniform int Ny;
 		uniform int Nz;
 		uniform int texWidth;
+		uniform bool twoD;
 
-		uniform sampler2D uSampler;
+		float EPS = 0.002;
 
-		float precis = 0.002;
-		vec3 playground;
-		float cameraZ = -10.;
-
-		float bound = 3.; //get 2*bound cubes in each direction
-
-		float round(float p)
+		float box(vec3 p, float l)
 		{
-			return floor(p+0.5);
+			return length(max(abs(p)-vec3(l),0.));
 		}
 
-		vec3 getCellFromPos( vec3 pos )
-		{
-			//calculate from position which cell has been met
-			//cells have size 1x1x1. bound gives howmany cells there are in each direction (2xbound)
-			vec3 origp = (uMVMatrixInverse * vec4(pos, 1.)).xyz;
-			//distance to first cell
-			float startDist = -bound-cameraZ;
-			origp.z += startDist;
-			//cell (0,0,0) is at nearest top left corner
-			float x = round(origp.x)+bound;
-			float y = round(origp.y)+bound;
-			float z = round(origp.z)+bound;
 
-			return vec3(0);
-		}
-
-		vec2 TestCube(vec3 p)
+		vec4 raytrace(vec3 ro, vec3 rd)
 		{
-			vec3 d = abs(p)-vec3(5.);
-			float col = 1.;
-			//if(length(p)-0.5 < 1.8)
-			//	col = 2.;
-			//if(p.x > 0.5)
-			//	col = 2.;
-			return vec2(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), col);
-		}
+			float maxZ = 20.;
+			float tmin = 0.;
 
-		vec2 Boxes( vec3 p, vec3 c, float bound )
-		{
-			int col = 0;
-			if((abs(p.x)<bound) && (abs(p.y)<bound) && (abs(p.z)<bound))
+			float t = tmin;
+
+			const int imax = 64;
+			int icpy;
+			vec3 pos;
+			float dist;
+
+			for(int i=0; i<imax; i++) //man darf kein while, wtf!!!
 			{
-				float size = 0.4;
-				vec3 q = mod(p,c)-0.5*c;
-
-			    if(q.x < 0.)
-			    	col = 1;
-
-			  	vec3 d = abs(q) - vec3(size);
-			  	return vec2(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), col);
-			}
-			else
-				return vec2(precis+1., -1); //col = -1 means break
-		}
-
-		vec2 raytrace(vec3 ro, vec3 rd) //returns (m, colorInd)
-		{
-		    float maxZ = playground.x;
-		    float step = 0.1;
-		    vec3 repCellSize = vec3(1.);//playground / vec3(Nx, Ny, Nz);
-
-		    float m = -1.0;
-		    float col = 0.;
-		    vec3 pos = ro;
-
-		    for( int i=0; i<50; i++ )
-		    {
-				vec2 res = TestCube(pos);//Boxes(pos, repCellSize, bound);
-				m = res.x;
-				col = res.y;
-				if( m<precis || pos.z>maxZ || col==-1. ) 
+				icpy = i;
+				pos = ro + t*rd;
+				dist = box(pos, 0.5);
+				if(dist < EPS || pos.z > maxZ)
 					break;
-				pos = pos + rd*step;
+				t += dist;
 			}
 
-		    if( pos.z > maxZ) 
-		    	m=-1.0;
+			if(icpy >= imax)
+				pos.z = maxZ;
 
-		    vec2 ret = vec2(m, col);
+			vec4 color = vec4(0);
+			if (dist < EPS) // we hit something \o/
+			{ 
+				color = vec4(0,1,0,1);
+			} 
+			else // no hit :-(
+			{ 
+				color = vec4(1,0,1,1);
+			}
 
-		    return ret;
-		}
+			return color;
 
-		vec4 getColor(vec3 cell)
-		{
-			float s = cell.z*float(Ny)*float(Nx) + cell.y*float(Nx) + cell.x;
-			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
+			//lasse denhier jetzt einfach direkt die Farbe zurück geben, dann muss man sich in der main nicht mit pos rumschlagen, 
+			//du wolltest ja irgendwie testen ob der zurückgegebene Vektor < EPS lang ist, was sollte das denn dann sein? Die Distanz ist ein float
+			//und die Position muss ja nicht 'kurz sein'
+
+			//Hab spaß :) 
 		}
 
 		void main()
 		{
-			playground = vec3(50); //from -0.5*height to +0.5*height
-			vec2 q = gl_FragCoord.xy/vec2(viewportWidth, viewportHeight);
+			vec2 uv = (2.*gl_FragCoord.xy - viewport) / min(viewport.x, viewport.y);
 
-			vec3 ro = vec3((q-vec2(0.5))*50., cameraZ);//vec3((q-vec2(0.5))*50., -10.);//vec3((q-vec2(0.5))*float(height), -1);
-			vec3 rd = vec3(0,0,1);
-
-			//rotate
+			vec3 ro = vec3(uv, 1.);
+			vec3 rd = normalize(vec3(uv*.6, -1.));
 			ro = (uMVMatrix * vec4(ro,1)).xyz;
 			rd = (uMVMatrix * vec4(rd,0)).xyz;
 
-			vec2 res = raytrace(ro, rd);
-			float m = res.x;
-			float col = res.y;
-			if(m>-1.)
-			{
-				if(m <= precis)
-				{
-					if(col == 0.)
-						gl_FragColor = vec4(1., 0., 0., 1.);
-					if(col == 1.)
-						gl_FragColor = vec4(0., 0., 1., 1.);
-					if(col == 2.)
-						gl_FragColor = vec4(1., 0., 1., 1.);
-					if(col == 3.)
-						gl_FragColor = vec4(0., 1., 0., 1.);
-				}
-				else
-					gl_FragColor = vec4(0.);				
-			}
-			else
-				gl_FragColor = vec4(0.);
+			vec4 hitCol = raytrace(ro, rd);
+			gl_FragColor = hitCol;
 
-		//	gl_FragColor = vec4(q, 0, 1);
-
-			//vec4 textureColor = getColor(vec3(1,1,0));
-			//gl_FragColor = textureColor;
+			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport);
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
