@@ -1,12 +1,13 @@
 //http://www.smartjava.org/examples/webaudio/example2.html
 var TwoD = (function() {
-	    var rows = 50;
-	    var cols = 50;
 	    var emptyData = [];
 	    var parsedSelect;
 	    var clearColor = [255,255,255,0.25];
 	    var musicColor = [255,0,0,1];
 	    var moveColor = [255,142,0,1];
+
+		var rows = 45;
+		var cols = 45;
 
 	    var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
 		            navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -565,7 +566,6 @@ var TwoD = (function() {
 
 	    // INITIALIZATION
 	    function init() {
-	    	console.log("init2D")
 	  		db = new SQL.Database();
 
 	  		//Init Music
@@ -665,6 +665,7 @@ var TwoD = (function() {
 	  	return {
 	  		init : function() {init();},
 	  		execute : function() {execute();},
-	  		cleanup : function() {cleanup();}
+	  		cleanup : function() {cleanup();},
+	  		toggleVideo : function() {toggleVideo();}
 	  	};
 })();

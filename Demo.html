@@ -3,7 +3,7 @@
 <head>
 	<link rel="stylesheet" href="css/normalize.css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
-	<script src='js/sql.js'></script>
+	<script src='js/sql-memory-growth.js'></script>
 	<script src='js/jquery.min.js'></script>
 	<script src='js/caret.js'></script>
 	<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
@@ -19,36 +19,52 @@
 	<script id="shader-fs" type="x-shader/x-fragment">
 	    precision mediump float;
 
-		const int Nx = 50;
-		const int Ny = 50;
-		const int Nz = 50;
-
 	    uniform mat4 uMVMatrix;
 	    uniform mat4 uMVMatrixInverse;
-		uniform int width;
-		uniform int height;
+		uniform int viewportWidth;
+		uniform int viewportHeight;
+		uniform int Nx;
+		uniform int Ny;
+		uniform int Nz;
+		uniform int texWidth;
+
+		uniform sampler2D uSampler;
 
 		float precis = 0.002;
-
 		vec3 playground;
+		float cameraZ = -10.;
 
-		vec2 getIndexFromPos( vec3 pos )
+		float bound = 3.; //get 2*bound cubes in each direction
+
+		float round(float p)
+		{
+			return floor(p+0.5);
+		}
+
+		vec3 getCellFromPos( vec3 pos )
 		{
 			//calculate from position which cell has been met
+			//cells have size 1x1x1. bound gives howmany cells there are in each direction (2xbound)
 			vec3 origp = (uMVMatrixInverse * vec4(pos, 1.)).xyz;
+			//distance to first cell
+			float startDist = -bound-cameraZ;
+			origp.z += startDist;
+			//cell (0,0,0) is at nearest top left corner
+			float x = round(origp.x)+bound;
+			float y = round(origp.y)+bound;
+			float z = round(origp.z)+bound;
 
-
-			return vec2(0);
+			return vec3(0);
 		}
 
 		vec2 TestCube(vec3 p)
 		{
-			vec3 d = abs(p)-vec3(2.);
+			vec3 d = abs(p)-vec3(5.);
 			float col = 1.;
 			//if(length(p)-0.5 < 1.8)
 			//	col = 2.;
-			if(p.x > 0.5)
-				col = 2.;
+			//if(p.x > 0.5)
+			//	col = 2.;
 			return vec2(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), col);
 		}
 
@@ -73,9 +89,8 @@
 		vec2 raytrace(vec3 ro, vec3 rd) //returns (m, colorInd)
 		{
 		    float maxZ = playground.x;
-		    float step = 0.01;
-		    vec3 repCellSize = playground / vec3(Nx, Ny, Nz);
-		    float bound = 3.; //get 2*bound cubes in each direction
+		    float step = 0.1;
+		    vec3 repCellSize = vec3(1.);//playground / vec3(Nx, Ny, Nz);
 
 		    float m = -1.0;
 		    float col = 0.;
@@ -83,7 +98,7 @@
 
 		    for( int i=0; i<50; i++ )
 		    {
-				vec2 res = Boxes(pos, repCellSize, bound);
+				vec2 res = TestCube(pos);//Boxes(pos, repCellSize, bound);
 				m = res.x;
 				col = res.y;
 				if( m<precis || pos.z>maxZ || col==-1. ) 
@@ -99,12 +114,18 @@
 		    return ret;
 		}
 
+		vec4 getColor(vec3 cell)
+		{
+			float s = cell.z*float(Ny)*float(Nx) + cell.y*float(Nx) + cell.x;
+			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
+		}
+
 		void main()
 		{
 			playground = vec3(50); //from -0.5*height to +0.5*height
-			vec2 q = gl_FragCoord.xy/vec2(width, height);
+			vec2 q = gl_FragCoord.xy/vec2(viewportWidth, viewportHeight);
 
-			vec3 ro = vec3((q-vec2(0.5))*50., -2.);//vec3((q-vec2(0.5))*float(height), -1);
+			vec3 ro = vec3((q-vec2(0.5))*50., cameraZ);//vec3((q-vec2(0.5))*50., -10.);//vec3((q-vec2(0.5))*float(height), -1);
 			vec3 rd = vec3(0,0,1);
 
 			//rotate
@@ -112,7 +133,6 @@
 			rd = (uMVMatrix * vec4(rd,0)).xyz;
 
 			vec2 res = raytrace(ro, rd);
-			//vec3 foundPos = res[1];
 			float m = res.x;
 			float col = res.y;
 			if(m>-1.)
@@ -129,10 +149,15 @@
 						gl_FragColor = vec4(0., 1., 0., 1.);
 				}
 				else
-					gl_FragColor = vec4(0., 0., 0., 0.);				
+					gl_FragColor = vec4(0.);				
 			}
 			else
-				gl_FragColor = vec4(0);
+				gl_FragColor = vec4(0.);
+
+		//	gl_FragColor = vec4(q, 0, 1);
+
+			//vec4 textureColor = getColor(vec3(1,1,0));
+			//gl_FragColor = textureColor;
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
@@ -148,9 +173,6 @@
 	})
 
 var numStars = 50;
-var rows = 50;
-var cols = 50;
-var peter = 100;
 
 	function toggleStarfield() {
 		//start stars
@@ -187,6 +209,11 @@ var peter = 100;
 		}
 	}
 
+	function toggleVideo()
+	{
+		TwoD.toggleVideo();
+	}
+
 	function execute()
 	{
 		if($('input[name="Dimension"]:checked').val() == "3")
@@ -219,7 +246,7 @@ var peter = 100;
 				<input type="text" id="numSoundBars" size="40" value="5">
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2">
+				<input type="radio" id="2D" name="Dimension" value="2" >
 				<label for="2D">2D</label>
 				<input type="radio" id="3D" name="Dimension" value="3" checked = "checked">
 				<label for="3D">3D</label>
