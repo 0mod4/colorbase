@@ -49,6 +49,8 @@ var ThreeD = (function() {
 		var lastMouseX = null;
 		var lastMouseY = null;
 
+		var drawDingsie;
+
 		function degToRad(degrees) {
         	return degrees * Math.PI / 180;
     	}
@@ -325,8 +327,7 @@ var ThreeD = (function() {
 	        shaderProgram.Nx = gl.getUniformLocation(shaderProgram, "Nx");
 	        shaderProgram.Ny = gl.getUniformLocation(shaderProgram, "Ny");
 	        shaderProgram.Nz = gl.getUniformLocation(shaderProgram, "Nz");
-	        shaderProgram.viewportwidth = gl.getUniformLocation(shaderProgram, "viewportWidth");
-	        shaderProgram.viewportheight= gl.getUniformLocation(shaderProgram, "viewportHeight");
+	        shaderProgram.viewport = gl.getUniformLocation(shaderProgram, "viewport");
 	        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 	        shaderProgram.texWidth = gl.getUniformLocation(shaderProgram, "texWidth");
 	    }
@@ -334,11 +335,10 @@ var ThreeD = (function() {
 	    function setUniforms() {
 	        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 	        gl.uniformMatrix4fv(shaderProgram.mvMatrixInverseUniform, false, mat4.inverse(mvMatrix));
+	        gl.uniform2f(shaderProgram.viewport, drawDingsie[0], drawDingsie[1]);
 	        gl.uniform1i(shaderProgram.Nx, cols);
 	        gl.uniform1i(shaderProgram.Ny, rows);
 	        gl.uniform1i(shaderProgram.Nz, peter);
-	        gl.uniform1i(shaderProgram.viewportwidth, viewport.height); //square?!
-	        gl.uniform1i(shaderProgram.viewportheight, viewport.height);
 	        gl.uniform1i(shaderProgram.texWidth, texWidth);
 	    }
 
@@ -399,8 +399,10 @@ var ThreeD = (function() {
 	    }
 
 	    function init() {
+
+	    	drawDingsie = new Float32Array([$(window).width(), $(window).height()]);
 	    	//create canvas to draw in
-	    	$('#container').append("<canvas class='drawCanvas' id='drawCanvas' style='border: none;' width='"+viewport.height+"' height='"+viewport.height+"'></canvas>")
+	    	$('#container').append("<canvas class='drawCanvas' id='drawCanvas' style='border: none;' width='"+drawDingsie[0]+"' height='"+drawDingsie[1]+"'></canvas>")
 		    var canvas = document.getElementById('drawCanvas');
 			dataArray = new Uint8Array(texWidth*4);
 

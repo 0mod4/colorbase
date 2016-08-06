@@ -17,147 +17,165 @@
 	</script>
 
 	<script id="shader-fs" type="x-shader/x-fragment">
-	    precision mediump float;
+		precision mediump float;
+		uniform sampler2D uSampler;
 
-	    uniform mat4 uMVMatrix;
-	    uniform mat4 uMVMatrixInverse;
-		uniform int viewportWidth;
-		uniform int viewportHeight;
+		uniform mat4 uMVMatrix;
+		uniform mat4 uMVMatrixInverse;
+		uniform vec2 viewport;
 		uniform int Nx;
 		uniform int Ny;
 		uniform int Nz;
 		uniform int texWidth;
+		uniform bool twoD;
 
-		uniform sampler2D uSampler;
+		const float EPS = 1e-3;
 
-		float precis = 0.002;
-		vec3 playground;
-		float cameraZ = -10.;
-
-		float bound = 3.; //get 2*bound cubes in each direction
-
-		float round(float p)
+		float sphere(vec3 p, float r)
+		// sphere of radius r
 		{
-			return floor(p+0.5);
+			return length(p)-r;
 		}
 
-		vec3 getCellFromPos( vec3 pos )
+		float box(vec3 p, vec3 l)
+		// box of dimensions l.x*l.y*l.z
 		{
-			//calculate from position which cell has been met
-			//cells have size 1x1x1. bound gives howmany cells there are in each direction (2xbound)
-			vec3 origp = (uMVMatrixInverse * vec4(pos, 1.)).xyz;
-			//distance to first cell
-			float startDist = -bound-cameraZ;
-			origp.z += startDist;
-			//cell (0,0,0) is at nearest top left corner
-			float x = round(origp.x)+bound;
-			float y = round(origp.y)+bound;
-			float z = round(origp.z)+bound;
-
-			return vec3(0);
+			return length(max(abs(p)-l,0.));
 		}
 
-		vec2 TestCube(vec3 p)
+		float boxGrid(vec3 p, vec3 l, float g, vec3 n)
+		// n.x*n.y*n.z box grid with lattice constant g of boxes with dimensions l.x*l.y*l.z
 		{
-			vec3 d = abs(p)-vec3(5.);
-			float col = 1.;
-			//if(length(p)-0.5 < 1.8)
-			//	col = 2.;
-			//if(p.x > 0.5)
-			//	col = 2.;
-			return vec2(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), col);
+			vec3 q = mod(p,g) - .5*g;
+			return max(box(q, l), box(p,n*g/2.));
 		}
 
-		vec2 Boxes( vec3 p, vec3 c, float bound )
+		float scene(vec3 p)
+		// wrapper function for the scene
 		{
-			int col = 0;
-			if((abs(p.x)<bound) && (abs(p.y)<bound) && (abs(p.z)<bound))
+			vec3 n = vec3(2,2,2);
+			return boxGrid(p, vec3(.2), .5, n);
+			//return max(sphere(p, .5), box(p, vec3(.35)));
+		}
+
+		struct Hit
+		{
+			vec3 p; // pos of hit, if no hit ro
+			float d; // distance from scene
+			bool hit; // hit something?
+			bool t; // out of scene?
+			bool it; // out of iterations?
+		};
+
+		Hit raytrace(vec3 ro, vec3 rd)
+		// given ray origin ro and ray direction rd returns the hit position, if nothing was hit returns ro
+		{
+			float t = 0.;
+			float maxT = 50.;
+
+			Hit hit = Hit(vec3(0.), 0., false, false, false);
+			vec3 p;
+			float d;
+			const int IMAX = 256;
+			for (int i=0; i<IMAX; i++)
 			{
-				float size = 0.4;
-				vec3 q = mod(p,c)-0.5*c;
-
-			    if(q.x < 0.)
-			    	col = 1;
-
-			  	vec3 d = abs(q) - vec3(size);
-			  	return vec2(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), col);
-			}
-			else
-				return vec2(precis+1., -1); //col = -1 means break
-		}
-
-		vec2 raytrace(vec3 ro, vec3 rd) //returns (m, colorInd)
-		{
-		    float maxZ = playground.x;
-		    float step = 0.1;
-		    vec3 repCellSize = vec3(1.);//playground / vec3(Nx, Ny, Nz);
-
-		    float m = -1.0;
-		    float col = 0.;
-		    vec3 pos = ro;
-
-		    for( int i=0; i<50; i++ )
-		    {
-				vec2 res = TestCube(pos);//Boxes(pos, repCellSize, bound);
-				m = res.x;
-				col = res.y;
-				if( m<precis || pos.z>maxZ || col==-1. ) 
+				p = ro + t*rd;
+				d = scene(p);
+				if (d < EPS)
+				{
+					hit.hit = true;
 					break;
-				pos = pos + rd*step;
+				}
+				t += d;
+				if (t > maxT)
+				{
+					hit.t = true;
+					break;
+				}
+				if (i == IMAX-1) hit.it = true;
 			}
-
-		    if( pos.z > maxZ) 
-		    	m=-1.0;
-
-		    vec2 ret = vec2(m, col);
-
-		    return ret;
+			hit.d = d;
+			if (!hit.it) hit.p = p;
+			else hit.p = ro;
+			return hit;
 		}
 
-		vec4 getColor(vec3 cell)
+
+		vec3 getNormal(vec3 p) {
+		// get normal vector of given position p
+			const vec2 e = vec2(EPS, 0.);
+			float d = scene(p);
+			return normalize(vec3(d - scene(p-e.xyy), d - scene(p-e.yxy), d - scene(p-e.yyx)));
+		}
+
+		vec4 getColor(Hit hit, vec3 lightPosition)
+		// get color of scene at position p
 		{
-			float s = cell.z*float(Ny)*float(Nx) + cell.y*float(Nx) + cell.x;
-			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
+			vec3 ambiCol = vec3(.05,.05,.09);
+			vec3 diffCol = vec3(.8,.7,.6);
+			vec3 specCol = vec3(1); // TODO spec doesn't seem to work?!
+
+			vec3 n = getNormal(hit.p);
+			float lambertian = max(dot(n, normalize(lightPosition - hit.p)), 0.); // diffuse
+
+			// specular
+			float specular = 0.;
+			if (lambertian > 0.) {
+				float phong_exp = 10.;
+				vec3 halfDir = normalize((lightPosition - hit.p) - hit.p); // norm(lightDir + viewDir)
+				specular = pow(max(dot(halfDir, n), 0.), 5.);
+			}
+
+			vec3 color = ambiCol + lambertian * diffCol / pow(length(lightPosition - hit.p), .4) + specular * specCol / pow(length(lightPosition - hit.p), 2.);
+			return vec4(color, 1.);
+		}
+
+		vec4 getBackgroundColor(Hit hit)
+		{
+			return vec4(0);
+		}
+
+
+		vec3 transformPos(vec3 v)
+		{
+			return (uMVMatrix * vec4(v,1)).xyz;
+		}
+
+		vec3 transformDir(vec3 d)
+		{
+			return (uMVMatrix * vec4(d,0)).xyz;
 		}
 
 		void main()
 		{
-			playground = vec3(50); //from -0.5*height to +0.5*height
-			vec2 q = gl_FragCoord.xy/vec2(viewportWidth, viewportHeight);
+			vec2 uv = (2.*gl_FragCoord.xy - viewport) / min(viewport.x, viewport.y);
 
-			vec3 ro = vec3((q-vec2(0.5))*50., cameraZ);//vec3((q-vec2(0.5))*50., -10.);//vec3((q-vec2(0.5))*float(height), -1);
-			vec3 rd = vec3(0,0,1);
+			vec3 ro = vec3(uv, 5.);
+			vec3 rd = normalize(vec3(uv*.6, -1.));
+			ro = transformPos(ro);
+			rd = transformDir(rd);
+			vec3 lightPos = transformPos(vec3(1));
 
-			//rotate
-			ro = (uMVMatrix * vec4(ro,1)).xyz;
-			rd = (uMVMatrix * vec4(rd,0)).xyz;
+			// ray marching
+			Hit hit = raytrace(ro, rd);
 
-			vec2 res = raytrace(ro, rd);
-			float m = res.x;
-			float col = res.y;
-			if(m>-1.)
+			// shading
+			vec4 color = vec4(1,0,0,1);
+			if (hit.hit) // we hit something
 			{
-				if(m <= precis)
-				{
-					if(col == 0.)
-						gl_FragColor = vec4(1., 0., 0., 1.);
-					if(col == 1.)
-						gl_FragColor = vec4(0., 0., 1., 1.);
-					if(col == 2.)
-						gl_FragColor = vec4(1., 0., 1., 1.);
-					if(col == 3.)
-						gl_FragColor = vec4(0., 1., 0., 1.);
-				}
-				else
-					gl_FragColor = vec4(0.);				
+				//color = getColor(hit, lightPos); // TODO not yet working with mod scene
+				color = vec4(.6,.7,.8,1.);
 			}
-			else
-				gl_FragColor = vec4(0.);
-
-		//	gl_FragColor = vec4(q, 0, 1);
-
-			//vec4 textureColor = getColor(vec3(1,1,0));
-			//gl_FragColor = textureColor;
+			else if (hit.t) // t > maxT
+			{
+				color = getBackgroundColor(hit);
+			}
+			else if (hit.it) // out of iterations
+			{
+				color = vec4(1,0,1,1); // for debugging
+			}
+			gl_FragColor = color;
+			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport); // for testing
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
