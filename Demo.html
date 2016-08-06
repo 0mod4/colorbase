@@ -29,44 +29,89 @@
 		uniform int texWidth;
 		uniform bool twoD;
 
-		float EPS = 2e-3;
+		const float EPS = 1e-3;
 
 		float box(vec3 p, float l)
+		// box of dimensions l*l*l
 		{
 			return length(max(abs(p)-vec3(l),0.));
 		}
 
-		float scene(vec3 p)
+		float boxGrid(vec3 p, float l, float g, vec3 n)
+		// n.x*n.y*n.z box grid with lattice constant g of boxes with dimensions l*l*l
 		{
-			return box(p, .2);
+			vec3 q = mod(p,g) - .5*g;
+			// TODO boundaries are missing
+			return box(q, l);
 		}
 
-		vec3 raytrace(vec3 ro, vec3 rd)
+		float scene(vec3 p)
+		// wrapper function for the scene
 		{
-			float maxZ = 20.;
-			float tmin = 0.;
+			vec3 n = vec3(10);
+			return boxGrid(p, .2, .8, n);
+		}
 
-			float t = tmin;
+		struct Hit
+		{
+			vec3 p; // pos of hit, if no hit ro
+			float d; // distance from scene
+			bool hit; // hit something?
+			bool t; // out of scene?
+			bool it; // out of iterations?
+		};
 
-			const int IMAX = 64;
-			for(int i=0; i<IMAX; i++) //man darf kein while, wtf!!!
+		Hit raytrace(vec3 ro, vec3 rd)
+		// given ray origin ro and ray direction rd returns the hit position, if nothing was hit returns ro
+		{
+			float t = 0.;
+			float maxT = 20.;
+
+			const int IMAX = 128;
+			for (int i=0; i<IMAX; i++)
 			{
-				vec3 pos = ro + t*rd;
-				float dist = scene(pos);
-				if (dist < EPS) return pos;
-				if (pos.z > maxZ) return ro;
-				t += dist;
+				vec3 p = ro + t*rd;
+				float d = scene(p);
+				if (d < EPS) return Hit(p, d, true, false, false);
+				t += d;
+				if (t > maxT) return Hit(p, d, false, true, false);
 			}
 
-			return ro; // to many iterations
+			return Hit(ro, 0., false, false, true); // too many iterations
 		}
 
-		vec4 getColor(vec3 pos)
+
+		vec3 getNormal(vec3 p) {
+		// get normal vector of given position p
+			const vec2 e = vec2(EPS, 0.);
+			float d = scene(p);
+			return normalize(vec3(d - scene(p-e.xyy), d - scene(p-e.yxy), d - scene(p-e.yyx)));
+		}
+
+		vec4 getColor(Hit hit)
+		// get color of scene at position p
 		{
-			return vec4(1,0,0,1);
+			vec3 lightPosition = vec3(1.,1.,1.);
+			vec3 ambiCol = vec3(.01,.01,.05);
+			vec3 diffCol = vec3(.1,.2,1);
+			vec3 specCol = vec3(1);
+
+			vec3 n = getNormal(hit.p);
+			float lambertian = max(dot(n, normalize(lightPosition - hit.p)), 0.); // diffuse
+
+			// specular
+			float specular = 0.;
+			if (lambertian > 0.) {
+				float phong_exp = 10.;
+				vec3 halfDir = normalize((lightPosition - hit.p) - hit.p); // norm(lightDir + viewDir)
+				specular = pow(max(dot(halfDir, n), 0.), 5.);
+			}
+
+			vec3 color = ambiCol + lambertian * diffCol / pow(length(lightPosition - hit.p), .4) + specular * specCol / pow(length(lightPosition - hit.p), 2.);
+			return vec4(color, 1.);
 		}
 
-		vec4 getBackgroundColor()
+		vec4 getBackgroundColor(Hit hit)
 		{
 			return vec4(0,0,1,1);
 		}
@@ -81,20 +126,24 @@
 			rd = (uMVMatrix * vec4(rd,0)).xyz;
 
 			// ray marching
-			vec3 hitPos = raytrace(ro, rd);
+			Hit hit = raytrace(ro, rd);
 
 			// shading
 			vec4 color;
-			if (distance(ro, hitPos) > EPS) // we hit something
+			if (hit.hit) // we hit something
 			{
-				color = getColor(hitPos);
+				color = getColor(hit);
 			}
-			else
+			else if (hit.t) // t > maxT
 			{
-				color = getBackgroundColor();
+				color = getBackgroundColor(hit);
+			}
+			else if (hit.it) // out of iterations
+			{
+				color = vec4(1,0,1,1);
 			}
 			gl_FragColor = color;
-			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport);
+			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport); // for testing
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
