@@ -50,11 +50,13 @@
 			return max(box(q, l), box(p,n*g/2.));
 		}
 
+		vec3 n = vec3(2.); //grid dimensions
+		float g = 0.5; //lattice constant
+		vec3 boxDim = vec3(.2);
 		float scene(vec3 p)
 		// wrapper function for the scene
 		{
-			vec3 n = vec3(2,2,2);
-			return boxGrid(p, vec3(.2), .5, n);
+			return boxGrid(p, boxDim, g, n);
 			//return max(sphere(p, .5), box(p, vec3(.35)));
 		}
 
@@ -100,6 +102,25 @@
 			return hit;
 		}
 
+		float round(float a)
+		{
+			return floor(a+0.5);
+		}
+
+		vec4 getColFromPos(vec3 pos)
+		//get color of cell hit at position pos
+		{
+			//original position
+			vec3 opos = (uMVMatrixInverse * vec4(pos, 1.)).xyz;
+			//set origin to top left front corner
+			opos -= vec3(g*n/2.);
+			opos.x = round(opos.x/g);
+			opos.y = round(opos.y/g);
+			opos.z = round(opos.z/g);
+
+			float s = opos.z*float(n.y)*float(n.x) + opos.y*float(n.x) + opos.x;
+			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
+		}
 
 		vec3 getNormal(vec3 p) {
 		// get normal vector of given position p
@@ -111,7 +132,7 @@
 		vec4 getColor(Hit hit, vec3 lightPosition)
 		// get color of scene at position p
 		{
-			vec3 ambiCol = vec3(.05,.05,.09);
+			vec3 ambiCol = getColFromPos(hit.p).xyz;//vec3(.05,.05,.09);
 			vec3 diffCol = vec3(.8,.7,.6);
 			vec3 specCol = vec3(1); // TODO spec doesn't seem to work?!
 
@@ -127,7 +148,7 @@
 			}
 
 			vec3 color = ambiCol + lambertian * diffCol / pow(length(lightPosition - hit.p), .4) + specular * specCol / pow(length(lightPosition - hit.p), 2.);
-			return vec4(color, 1.);
+			return vec4(1.);//vec4(color, 1.);
 		}
 
 		vec4 getBackgroundColor(Hit hit)
@@ -151,7 +172,7 @@
 			vec2 uv = (2.*gl_FragCoord.xy - viewport) / min(viewport.x, viewport.y);
 
 			vec3 ro = vec3(uv, 5.);
-			vec3 rd = normalize(vec3(uv*.6, -1.));
+			vec3 rd = normalize(vec3(uv*.8, -1.));
 			ro = transformPos(ro);
 			rd = transformDir(rd);
 			vec3 lightPos = transformPos(vec3(1));
@@ -163,8 +184,8 @@
 			vec4 color = vec4(1,0,0,1);
 			if (hit.hit) // we hit something
 			{
-				//color = getColor(hit, lightPos); // TODO not yet working with mod scene
-				color = vec4(.6,.7,.8,1.);
+				color = getColor(hit, lightPos); // TODO not yet working with mod scene
+				//color = vec4(.6,.7,.8,1.);
 			}
 			else if (hit.t) // t > maxT
 			{
