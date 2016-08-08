@@ -76,10 +76,10 @@ var ThreeD = (function() {
 		    mat4.identity(newRot);
 
 		    var deltaX = newX - lastMouseX;
-		    mat4.rotate(newRot, degToRad(deltaX / 10), [0, 1, 0]);
+		    mat4.rotate(newRot, degToRad(deltaX / 10), [0, -1, 0]);
 
 		    var deltaY = newY - lastMouseY;
-		    mat4.rotate(newRot, degToRad(deltaY / 10), [1, 0, 0]);
+		    mat4.rotate(newRot, degToRad(deltaY / 10), [-1, 0, 0]);
 
 		    mat4.multiply(newRot, rotMat, rotMat);
 
@@ -394,8 +394,6 @@ var ThreeD = (function() {
 	        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	        gl.bindTexture(gl.TEXTURE_2D, colorTex);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, dataArray);
-	        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	        gl.generateMipmap(gl.TEXTURE_2D);
