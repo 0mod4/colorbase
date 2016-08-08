@@ -8,9 +8,9 @@ var ThreeD = (function() {
 	    var musicColor = [255,0,0,1];
 	    var moveColor = [255,142,0,1];
 
-	    var rows = 3;
-		var cols = 3;
-		var peter = 3;
+	    var rows = 4;
+		var cols = 4;
+		var peter = 4;
 		var texWidth = 32;
 
 	    var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -241,6 +241,8 @@ var ThreeD = (function() {
 	  			dataArray[s+2] = b;
 	  			dataArray[s+3] = a*255;
 
+	  			console.log("dataArray["+x+","+y+","+z+"("+s+")] = ("+r+","+g+","+b+")");
+
 	  		}
 
 		  	function clamp(val, min, max)
@@ -392,8 +394,10 @@ var ThreeD = (function() {
 	        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	        gl.bindTexture(gl.TEXTURE_2D, colorTex);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, dataArray);
-	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+	        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	        gl.generateMipmap(gl.TEXTURE_2D);
 	        gl.bindTexture(gl.TEXTURE_2D, null);
 	    }

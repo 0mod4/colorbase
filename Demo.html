@@ -50,7 +50,7 @@
 			return max(box(q, l), box(p,n*g/2.));
 		}
 
-		vec3 n = vec3(2.); //grid dimensions
+		vec3 n = vec3(Nx, Ny, Nz); //grid dimensions
 		float g = 0.5; //lattice constant
 		vec3 boxDim = vec3(.2);
 		float scene(vec3 p)
@@ -111,14 +111,12 @@
 		//get color of cell hit at position pos
 		{
 			//original position
-			vec3 opos = (uMVMatrixInverse * vec4(pos, 1.)).xyz;
-			//set origin to top left front corner
-			opos -= vec3(g*n/2.);
-			opos.x = round(opos.x/g);
-			opos.y = round(opos.y/g);
-			opos.z = round(opos.z/g);
+			vec3 cell = pos;//(uMVMatrixInverse * vec4(pos, 1.)).xyz;
+			cell = floor(cell/g);
+			cell += vec3(float(Nx)/2., -(float(Ny)/2.-1.), -(float(Nz)/2.-1.)); //ACHTUNG! nur grade Nx,Ny,Nz
+			cell.y = abs(cell.y);
 
-			float s = opos.z*float(n.y)*float(n.x) + opos.y*float(n.x) + opos.x;
+			float s = cell.z*float(n.y)*float(n.x) + cell.y*float(n.x) + cell.x;
 			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
 		}
 
@@ -148,7 +146,7 @@
 			}
 
 			vec3 color = ambiCol + lambertian * diffCol / pow(length(lightPosition - hit.p), .4) + specular * specCol / pow(length(lightPosition - hit.p), 2.);
-			return vec4(1.);//vec4(color, 1.);
+			return vec4(color, 1.);
 		}
 
 		vec4 getBackgroundColor(Hit hit)
@@ -196,7 +194,8 @@
 				color = vec4(1,0,1,1); // for debugging
 			}
 			gl_FragColor = color;
-			//gl_FragColor = texture2D(uSampler, gl_FragCoord.xy/viewport); // for testing
+			//vec2 testcoord = vec2(7./float(texWidth), 0.5);
+			//gl_FragColor = texture2D(uSampler, testcoord); // for testing
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
