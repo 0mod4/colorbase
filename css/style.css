@@ -1,27 +1,3 @@
-@font-face {
-  font-family: 'meyrinregular';
-  src: url("../fonts/meyrin-webfont.woff2") format("woff2"), url("../fonts/meyrin-webfont.woff") format("woff");
-  font-weight: normal;
-  font-style: normal; }
-body {
-  background-image: url("../img/background_nebula.jpg");
-  background-size: cover;
-  background-blend-mode: hard-light;
-  background-color: black;
-  overflow: hidden;
-  z-index: 0; }
-  body .star {
-    -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
-    background-color: white;
-    height: 2px;
-    width: 2px;
-    border-radius: 50%;
-    position: absolute;
-    z-index: 1;
-    -webkit-transition: left 10s ease-in, top 10s ease-in, background 3s ease;
-            transition: left 10s ease-in, top 10s ease-in, background 3s ease; }
-
 @-webkit-keyframes text_flicker {
   0% {
     opacity: 1; }
@@ -47,7 +23,6 @@ body {
     opacity: 0.81; }
   100% {
     opacity: 1; } }
-
 @keyframes text_flicker {
   0% {
     opacity: 1; }
@@ -73,6 +48,20 @@ body {
     opacity: 0.81; }
   100% {
     opacity: 1; } }
+@-webkit-keyframes text_glow {
+  25% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; }
+  50% {
+    text-shadow: 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 0 #ffffff; }
+  75% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; } }
+@keyframes text_glow {
+  25% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; }
+  50% {
+    text-shadow: 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 0 #ffffff; }
+  75% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; } }
 @-webkit-keyframes cursor_pulse {
   0% {
     opacity: 0; }
@@ -91,18 +80,42 @@ body {
     opacity: 1; }
   99% {
     opacity: 1; } }
+@font-face {
+  font-family: 'meyrinregular';
+  src: url("../fonts/meyrin-webfont.woff2") format("woff2"), url("../fonts/meyrin-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal; }
+body {
+  background-image: url("../img/background_nebula.jpg");
+  background-size: cover;
+  background-blend-mode: hard-light;
+  background-color: black;
+  overflow: hidden;
+  z-index: 0; }
+  body .star {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    background-color: white;
+    height: 2px;
+    width: 2px;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 1;
+    -webkit-transition: left 10s ease-in, top 10s ease-in, background 3s ease;
+            transition: left 10s ease-in, top 10s ease-in, background 3s ease; }
+
 .inputform {
   position: fixed;
   padding: 10px;
   margin: 20px;
   float: left;
   z-index: 10;
-  width: auto;
-  -webkit-animation: text_flicker 0.3s alternate infinite;
-          animation: text_flicker 0.3s alternate infinite; }
+  width: auto; }
   .inputform form {
     color: white;
-    width: 100%; }
+    width: 100%;
+    -webkit-animation: text_flicker 0.3s alternate infinite;
+            animation: text_flicker 0.3s alternate infinite; }
     .inputform form #queryText {
       background: transparent;
       color: transparent;
@@ -114,6 +127,9 @@ body {
       font-size: 250%;
       float: left;
       width: 100%; }
+      .inputform form #queryText.glow {
+        -webkit-animation: text_glow 0.25s infinite;
+                animation: text_glow 0.25s infinite; }
       .inputform form #queryText:active, .inputform form #queryText:focus {
         outline: none !important; }
   .inputform .marker {

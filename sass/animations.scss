@@ -1,0 +1,82 @@
+// some colors
+$white_flash: #ffffff;
+
+// animations for the UI
+@keyframes text_flicker {
+  0% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.96;
+  }
+  15% {
+    opacity: 0.86;
+  }
+  18% {
+    opacity: 0.86;
+  }
+  30% {
+    opacity: 0.94;
+  }
+  35% {
+    opacity: 0.83;
+  }
+  40% {
+    opacity: 0.88;
+  }
+  55%{
+    opacity: 0.81;
+  }
+  60% {
+    opacity: 0.97;
+  }
+  80% {
+    opacity: 0.84;
+  }
+  85% {
+    opacity: 0.81;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes text_glow {
+  25% {
+    text-shadow:  0 0 10px $white_flash,
+                  0 0 10px $white_flash,
+                  0 0 10px $white_flash,
+                  0 0 0 $white_flash;
+  }
+  50% {
+    text-shadow:  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 20px $white_flash,
+                  0 0 0 $white_flash;
+  }
+  75% {
+    text-shadow:  0 0 10px $white_flash,
+                  0 0 10px $white_flash,
+                  0 0 10px $white_flash,
+                  0 0 0 $white_flash;
+  }
+}
+
+@keyframes cursor_pulse {
+  0% {
+    opacity: 0;
+  }
+  49% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 1
+  }
+}
