@@ -183,11 +183,13 @@
 	<script type='text/javascript' charset='utf-8' src='js/globals.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/starfield.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/gui.js'></script>
+	<script type='text/javascript' charset='utf-8' src='js/greeting_scroller.js'></script>
 </head>
 
 <script>
 	$().ready(function() {
-		$().initGUI();
+		$().initGUI()
+		$().initScroller()
 	})
 
 var numStars = 50;
@@ -201,7 +203,7 @@ var numStars = 50;
  		}
  	}
 
-	function init() 
+	function init()
 	{
 		if($('input[name="Dimension"]:checked').val() == 3)
 		{
@@ -248,6 +250,18 @@ var numStars = 50;
 			<input name="queryText" type="text" id="queryText" size="120" value="select * from dummy" autocomplete="off"><div class="marker"></div>
 		</form>
  	</div>
+
+	<div class="greetings">
+		<p class="char" style="left: 1510px">H</p>
+		<p class="char" style="left: 1510px">E</p>
+		<p class="char" style="left: 1510px">L</p>
+		<p class="char" style="left: 1510px">L</p>
+		<p class="char" style="left: 1510px">O</p>
+		<p class="char" style="left: 1510px">!</p>
+		<!-- This will be filled programatically by the scroller script -->
+		<!-- The input is located in the file "greetz" in root dir -->
+		<!-- it should contain one greeting per line for best results - but really anything will do -->
+	</div>
 
  	<div class="optionform">
 		<a href="#" class="toggle">Toggle Settings</a>
