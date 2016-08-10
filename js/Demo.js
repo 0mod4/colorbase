@@ -9,26 +9,7 @@ var TwoD = (function() {
 		var rows = 45;
 		var cols = 45;
 
-	    var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-		            navigator.mozGetUserMedia || navigator.msGetUserMedia);
-
 	    var db;
-
-	    var context = new AudioContext();
-	    var audioBuffer;
-	    var source;
-	    var scriptProcessor;
-	    var musicBuffer;
-	    var soundAnalyzer;
-	    var soundBars;
-
-		var videoSource;
-
-	    var musicIntervalID = 0;
-		var videoIntervalID = 0;
-		var moveIntervalID = 0;
-		var queryIntervalID = 0;
-
 		var prevData = []; //needed for motion detection
 
 	    /*TABLE CREATION*/
@@ -81,7 +62,6 @@ var TwoD = (function() {
 
 	    /*TABLE UPDATES*/
 	    function updateMusicTable() {
-	    	console.log("update Music Table");
 	    	db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
 	    	if(typeof soundBars !== 'undefined') //no music playing
 	    	{
@@ -112,54 +92,9 @@ var TwoD = (function() {
 		    			cursb = soundBars[sb];
 		    		sbHeight = Math.floor(cursb/diffPerCell);
 
-		    		/*
-		    		var a = 1.0/sbHeight;
-		    		var b = 1-rows/parseFloat(sbHeight);
-		    		var r,g,b;
-		    		var alpha;
-		    		for(var y=rows-sbHeight; y<rows; y++) //fill rowwise (to get gradient)
-		    		{
-		    			alpha = a*y+b;
-		    			r = alpha*musicColor1[0]+(1-alpha)*musicColor2[0];
-		    			g = alpha*musicColor1[1]+(1-alpha)*musicColor2[1];
-		    			b = alpha*musicColor1[2]+(1-alpha)*musicColor2[2];
-		    			db.run("UPDATE MUSIC SET r=?, g=?, b=? WHERE y=? AND x BETWEEN ? AND ?", [r,g,b,y,sb*num,(sb+1)*num-1]);
-		    		}*/
-
 		    		db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=? WHERE y>? AND x BETWEEN ? AND ?", [musicColor[0],musicColor[1],musicColor[2],musicColor[3],rows-sbHeight,sb*num,(sb+1)*num-1]);
 		    	}
 	    	}
-	    }
-
-	    /*MUSIC*/
-	    // load the specified sound
-	    function loadSound(url) {
-	        var request = new XMLHttpRequest();
-	        request.open('GET', url, true);
-	        request.responseType = 'arraybuffer';
-
-	        // When loaded decode the data
-	        request.onload = function() {
-	            // decode the data
-	            context.decodeAudioData(request.response, function(buffer) {
-	                musicBuffer = buffer;
-	            }, onError);
-	        }
-	        request.send();
-	    }
-
-		function playSound() {
-		  source = context.createBufferSource();
-		  source.connect(soundAnalyzer);
-		  source.buffer = musicBuffer;
-		  source.connect(context.destination);
-		  scriptProcessor.connect(context.destination);
-		  source.start(0);
-		}
-
-	    function stopSound() {
-	    	scriptProcessor.disconnect();
-	    	source.stop();
 	    }
 
 	 	function toggleMusic() {
@@ -180,101 +115,6 @@ var TwoD = (function() {
 				}
 	 		}
 	 	}
-	    // log if an error occurs
-	    function onError(e) {
-	        console.log(e);
-	    }
-
-	    /*SOUND ANALYZER*/
-	    function initSoundAnalyzer()
-	    {
-	        // setup a javascript node
-	        scriptProcessor = context.createScriptProcessor(4096, 1, 1); //2048
-
-	        // setup a analyzer
-	        soundAnalyzer = context.createAnalyser();
-	        soundAnalyzer.smoothingTimeConstant = 0.3;
-	        soundAnalyzer.fftSize = 512;
-
-	        // we use the javascript node to draw at a specific interval.
-	        soundAnalyzer.connect(scriptProcessor);
-
-		    scriptProcessor.onaudioprocess = function() {
-
-		        // get the average, bincount is fftsize / 2
-		        var array =  new Uint8Array(soundAnalyzer.frequencyBinCount);
-		        soundAnalyzer.getByteFrequencyData(array);
-		        getSoundBars(array, $("#numSoundBars").val());
-		    }
-
-		    function getSoundBars(array, n) {
-		        soundBars = [];
-		        var length = array.length;
-		 		var barWidth = Math.floor(length/n);
-		 		var values;
-
-		 		for(var c=0; c<n-1; c++)
-		 		{
-		        	values = 0;
-		 			for(var i=0; i<barWidth; i++)
-		 			{
-		 				values += array[c*barWidth + i];
-		 			}
-		 			soundBars.push(values/barWidth);
-		 		}
-
-		 		//last bar eventually takes more frequencies
-		 		values = 0;
-		 		for(var i=(n-1)*barWidth+1; i<length; i++)
-		 		{
-		 			values += array[i];
-		 		}
-		 		soundBars.push(values/(length-((n-1)*barWidth+1)));
-		    }
-	    }
-
-	    /*VIDEO*/
-		function initVideo()
-		{
-			//create canvas to render the video in
-			$('#videoCanvas').width(cols)
-	    		.height(rows);
-
-		    if(navigator.webkitGetUserMedia)
-		    {
-		        navigator.webkitGetUserMedia({video:true}, onSuccess, onFail);
-		    }
-		    else
-		    {
-		        alert('webRTC not available');
-		    }
-		}
-
-		function useVideo()
-		{
-		    document.getElementById('camFeed').src = URL.createObjectURL(videoSource);
-		}
-
-		function stopVideo()
-		{
-		    document.getElementById('camFeed').src = '';//URL.createObjectURL(videoSource);
-
-		    if(videoIntervalID > 0) //an interval is active, stop it
-		    {
-		        clearInterval(videoIntervalID);
-		        videoIntervalID = 0;
-		    }
-		}
-
-		function onSuccess(stream)
-		{
-		    videoSource = stream;
-		}
-
-		function onFail()
-		{
-		    alert('could not connect stream');
-		}
 
 		function toggleVideo()
 		{
@@ -308,7 +148,7 @@ var TwoD = (function() {
 		}
 
 		function updateVideoTable()
-		{console.log("update video")
+		{
 			if($("#useVideo").prop( "checked" ))
 			{
 			    var c = document.getElementById('videoCanvas');
@@ -394,47 +234,6 @@ var TwoD = (function() {
 		}
 
 	    /*EXECUTING*/
-	    function clearIntervals()
-	    {
-			if(musicIntervalID > 0) //an interval is active, stop it
-			{
-				clearInterval(musicIntervalID);
-				musicIntervalID = 0;
-			}
-			if(musicIntervalID > 0) //an interval is active, stop it
-			{
-				clearInterval(videoIntervalID);
-				videoIntervalID = 0;
-			}
-			if(moveIntervalID > 0) //an interval is active, stop it
-			{
-				clearInterval(moveIntervalID);
-				moveIntervalID = 0;
-			}
-			if(queryIntervalID > 0) //an interval is active, stop it
-			{
-				clearInterval(queryIntervalID);
-				queryIntervalID = 0;
-			}
-	    }
-
-	    function intervalSet()
-	    {
-			if(musicIntervalID > 0)
-			{
-				return true;
-			}
-			if(videoIntervalID > 0)
-			{
-				return true;
-			}
-			if(moveIntervalID > 0)
-			{
-				return true;
-			}
-			return false;
-	    }
-
 	    function execute(){
 			var statement = $("#queryText").val();
 
@@ -563,22 +362,22 @@ var TwoD = (function() {
 		  	}
 	  	}
 
-
 	    // INITIALIZATION
 	    function init() {
+
 	  		db = new SQL.Database();
 
 	  		//Init Music
-		    initSoundAnalyzer();
-		    // loadSound("Music/test.mp3"); #TODO remove before commit!
+		    initSoundAnalyzer(); 
+		    loadSound(musicPath);
 
+		    //Init Video
 	  		if(video)
-	  			initVideo();
+	  			initVideo(rows, cols);
 	  		else
 	  			alert("Your browser does not support GetUserMedia()");
 
 			var dimension = $('input[name="Dimension"]:checked').val();
-
 			var margin_of_cells = [];
 
 			function getMarginOfCells () {
@@ -666,6 +465,7 @@ var TwoD = (function() {
 	  		init : function() {init();},
 	  		execute : function() {execute();},
 	  		cleanup : function() {cleanup();},
-	  		toggleVideo : function() {toggleVideo();}
+	  		toggleVideo : function() {toggleVideo();},
+	  		toggleMusic : function() {toggleMusic();}
 	  	};
 })();
