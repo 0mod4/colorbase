@@ -4,40 +4,18 @@ var ThreeD = (function() {
 	    var error = "";
 	    var emptyData = [];
 	    var parsedSelect;
-	    var clearColor = [255,255,255,0.25];
-	    var musicColor = [255,0,0,1];
-	    var moveColor = [255,142,0,1];
+	    var clearColor = [0,0,0,255];
+	    var musicColor = [255,0,0,255];
+	    var moveColor = [255,142,0,255];
 
-	    var rows = 4;
-		var cols = 4;
-		var peter = 4;
-		var texWidth = 32;
-
-	    var video = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-		            navigator.mozGetUserMedia || navigator.msGetUserMedia);
+	    var Nx = 12;
+		var Ny = 12;
+		var Nz = 12;
+		var texWidth = 8192;
 
 	    var db;
 
-	    var context = new AudioContext();
-	    var audioBuffer;
-	    var source;
-	    var scriptProcessor;
-	    var musicBuffer;
-	    var soundAnalyzer;
-	    var soundBars;
-
-		var videoSource;
-
-	    var musicIntervalID = 0;
-		var videoIntervalID = 0;
-		var moveIntervalID = 0;
-		var queryIntervalID = 0;
-
 		var prevData = []; //needed for motion detection
-
-		var mouseControl;
-		var uRayOrigin;
-		var uRayTarget;
 
 		//modelview matrix
 	    var mvMatrix = mat4.create();
@@ -89,11 +67,11 @@ var ThreeD = (function() {
 
 	    /*TABLE CREATION*/
 	    function createEmptyData() {
-		    for(var x=0; x<rows; x++)
+		    for(var x=0; x<Nx; x++)
 		    {
-		    	for(var y=0; y<cols; y++)
+		    	for(var y=0; y<Ny; y++)
 		    	{
-		    		for(var z=0; z<peter; z++)
+		    		for(var z=0; z<Nz; z++)
 		    			emptyData.push("("+x+","+y+","+z+","+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
 		    	}
 		    }
@@ -102,35 +80,121 @@ var ThreeD = (function() {
 	    function createDefaultTable() {
 		    db.run("CREATE TABLE dummy (x,y,z,r,g,b,a);");
 		    var values = [];
-		    for(var x=0; x<rows; x++)
+		    for(var x=0; x<Nx; x++)
 		    {
-		    	for(var y=0; y<cols; y++)
+		    	for(var y=0; y<Ny; y++)
 		    	{
-		    		for(var z=0; z<peter; z++)
+		    		for(var z=0; z<Nz; z++)
 		    		{
 			    		values.push("("+x+","+y+","+z);
 			    		if(x==y)
 			    		{
-			    			//values.push(z/parseFloat(peter)*255+", 20, 100, 1)");
-			    			values.push("255, 20, 10, 1)");
+			    			if(z==0)
+			    				values.push("255, 20, 10, 255)");
+			    			else
+			    				values.push("10, 255, 10, 255)");
 			    		}
 			    		else
 			    		{
-			    			values.push("0,50,200,0.5)");
+			    			values.push("0,50,255,255)");
 			    		}
 			    	}
 		    	}
 		    }
 	    	db.run("INSERT INTO dummy VALUES "+values.join());
-	    	//console.log(values.join());
-
-	    	//db.run("INSERT INTO dummy VALUES (0,0,0,255,0,0,1)");
 	    }
 
-	    function execute(){
+	    function createMusicTable() {
+	    	db.run("CREATE TABLE MUSIC (x,y,z,r,g,b,a);");
+	    	db.run("INSERT INTO MUSIC VALUES "+emptyData.join());
+	    }
+
+	    function createVideoTable() {
+	    	db.run("CREATE TABLE VIDEO (x,y,z,r,g,b,a);");
+	   		db.run("INSERT INTO VIDEO VALUES "+emptyData.join());
+	    }
+
+		function toggleVideo()
+		{
+		    if(video)
+		    {
+		        if($("#useVideo").prop( "checked" )) //start video
+		        {
+		            useVideo();
+		        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("VIDEO")> -1))
+		        	{
+		        		if(videoIntervalID == 0)
+		        		{console.log("start video interval");
+		        			videoIntervalID = window.setInterval(function() {updateVideoTable();})
+		        		}
+		        	}
+		        }
+		        else
+		        {
+		            stopVideo();
+		            if(videoIntervalID > 0) //an interval is active, stop it
+		            {
+		                clearInterval(videoIntervalID);
+		                videoIntervalID = 0;
+		            }
+		        }
+		    }
+		    else
+		    {
+		        alert("Webcam access is not supported in your browser");
+		    }
+		}
+
+		function updateVideoTable()
+		{
+			console.log("updateVideo3D");
+			if($("#useVideo").prop( "checked" ))
+			{
+			    var c = document.getElementById('videoCanvas');
+			    var v = document.getElementById('camFeed');
+			    c.getContext('2d').drawImage(v, 0, 0, Nx, Ny);
+			    var data = c.getContext('2d').getImageData(0, 0, Nx, Ny).data;
+			    var values = [];
+			    db.run("DELETE FROM VIDEO");
+			    for(var x=0; x<Nx; x++)
+			    {
+			    	for(var y=0; y<Ny; y++)
+			    	{
+			    		for(var z=0; z<Nz; z++)
+			    		{
+					    	var s = (y*Nx+x)*4;
+				    		var vz = getVideoZ(data[s], data[s+1], data[s+2]);
+				    		values.push("("+x+","+y+","+z);
+				    		if(vz == z)
+				    		{
+				    			values.push(data[s]);
+				    			values.push(data[s+1]);
+				    			values.push(data[s+2]+",255)");
+				    		}
+				    		else
+				    		{
+				    			values.push("0,0,0,0)");
+				    		}
+			    		}
+			    	}
+			    }
+			    db.run("INSERT INTO VIDEO VALUES "+values.join());
+			}
+			else{
+				db.run("UPDATE VIDEO SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
+			}
+		}
+
+		function getVideoZ(r,g,b)
+		{
+			return Math.round((r+g+b)/765.*(Nz-1));
+		}
+
+	    function execute()
+	    {
 			var statement = $("#queryText").val();
 
-			/*clearIntervals();
+			clearIntervals();
 
 			if(statement.indexOf("MUSIC") > -1) //selects from Music table
 			{
@@ -140,21 +204,22 @@ var ThreeD = (function() {
 			{
 				videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
 			}
-			if(statement.indexOf("MOVE")>-1) //selects from MOVE table
+			/*if(statement.indexOf("MOVE")>-1) //selects from MOVE table
 			{
 				moveIntervalID = window.setInterval(function() {updateMoveTable(); }, 100);
-			}
+			}*/
 			if(intervalSet())
 			{
 				queryIntervalID = window.setInterval(function() {query(statement); }, 100);
 			}
 			else
-			{*/
+			{
 				query(statement);
-			//}
+			}
 	    }
 
-		function query(statement) {
+		function query(statement) 
+		{
 			var result = [];
 			var stmt = db.prepare(statement);
 			if(stmt)
@@ -215,7 +280,7 @@ var ThreeD = (function() {
 	  			return;
 	  		}
 	  		if(!("a" in result[0]))
-	  			a_ = 1;
+	  			a_ = 255;
 
 	  		//fill color texture Array
 	  		//TODO: delete data array
@@ -228,21 +293,20 @@ var ThreeD = (function() {
 	  			if(a_ != -1)
 	  				a = a_;
 	  			else
-	  				a = clamp(result[i].a,0,1);
+	  				a = clamp(result[i].a,0,255);
 
 	  			var x = Math.round(result[i].x);
 	  			var y = Math.round(result[i].y);
 	  			var z = Math.round(result[i].z);
 
-	  			var s = z*rows*cols + y*cols + x;
+	  			var s = z*Ny*Nx + y*Nx + x;
 	  			s *= 4; //4 values per entry
 	  			dataArray[s] = r;
 	  			dataArray[s+1] = g;
 	  			dataArray[s+2] = b;
-	  			dataArray[s+3] = a*255;
+	  			dataArray[s+3] = a;
 
-	  			console.log("dataArray["+x+","+y+","+z+"("+s+")] = ("+r+","+g+","+b+")");
-
+	  			//console.log("dataArray["+x+","+y+","+z+"("+s+")] = ("+r+","+g+","+b+","+a+")");
 	  		}
 
 		  	function clamp(val, min, max)
@@ -253,7 +317,8 @@ var ThreeD = (function() {
 
 	    // INITIALIZATION
 	    var gl;
-	    function initGL(canvas) {
+	    function initGL(canvas) 
+	    {
 	        try {
 	            gl = canvas.getContext("experimental-webgl");
 	            gl.viewportWidth = canvas.width;
@@ -268,7 +333,8 @@ var ThreeD = (function() {
 	        }
 	    }
 
-	    function getShader(gl, id) {
+	    function getShader(gl, id) 
+	    {
 	        var shaderScript = document.getElementById(id);
 
 	        if (!shaderScript) {
@@ -306,7 +372,8 @@ var ThreeD = (function() {
 
     	var shaderProgram;
 
-	    function initShaders() {
+	    function initShaders() 
+	    {
 	        var fragmentShader = getShader(gl, "shader-fs");
 	        var vertexShader = getShader(gl, "shader-vs");
 
@@ -334,20 +401,22 @@ var ThreeD = (function() {
 	        shaderProgram.texWidth = gl.getUniformLocation(shaderProgram, "texWidth");
 	    }
 
-	    function setUniforms() {
+	    function setUniforms() 
+	    {
 	        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 	        gl.uniformMatrix4fv(shaderProgram.mvMatrixInverseUniform, false, mat4.inverse(mvMatrix));
 	        gl.uniform2f(shaderProgram.viewport, drawDingsie[0], drawDingsie[1]);
-	        gl.uniform1i(shaderProgram.Nx, cols);
-	        gl.uniform1i(shaderProgram.Ny, rows);
-	        gl.uniform1i(shaderProgram.Nz, peter);
+	        gl.uniform1i(shaderProgram.Nx, Nx);
+	        gl.uniform1i(shaderProgram.Ny, Ny);
+	        gl.uniform1i(shaderProgram.Nz, Nz);
 	        gl.uniform1i(shaderProgram.texWidth, texWidth);
 	    }
 
 	    var triangleVertexPositionBuffer;
 	    var squareVertexPositionBuffer;
 
-	    function initBuffers() {
+	    function initBuffers() 
+	    {
 	        squareVertexPositionBuffer = gl.createBuffer();
 	        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
 	        var vertices = [
@@ -363,7 +432,8 @@ var ThreeD = (function() {
 
 
 	    var colorTex;
-	    function drawScene() {
+	    function drawScene() 
+	    {
 	        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
@@ -384,29 +454,40 @@ var ThreeD = (function() {
 	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 	    }
 
-	  	function tick() {
+	  	function tick() 
+	  	{
 	    	requestAnimationFrame(tick);
 	    	drawScene();
 	  	}
 
-	    function initTexture() {
+	    function initTexture() 
+	    {
 	        colorTex = gl.createTexture();
 	        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	        gl.bindTexture(gl.TEXTURE_2D, colorTex);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, dataArray);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	        gl.generateMipmap(gl.TEXTURE_2D);
 	        gl.bindTexture(gl.TEXTURE_2D, null);
 	    }
 
-	    function init() {
+	    function init() 
+	    {
+	    	if(Nx*Ny*Nz > texWidth)
+	    		alert('insufficient Texture width!');
 
 	    	drawDingsie = new Float32Array([$(window).width(), $(window).height()]);
 	    	//create canvas to draw in
 	    	$('#container').append("<canvas class='drawCanvas' id='drawCanvas' style='border: none;' width='"+drawDingsie[0]+"' height='"+drawDingsie[1]+"'></canvas>")
 		    var canvas = document.getElementById('drawCanvas');
 			dataArray = new Uint8Array(texWidth*4);
+			for (var i = 0 ; i<texWidth; i++)
+			{
+				dataArray[4*i] = 0;
+				dataArray[4*i+1] = 0;
+				dataArray[4*i+2] = 0;
+				dataArray[4*i+3] = 255;
+			}
 
 		    initGL(canvas);
 		    initShaders();
@@ -420,9 +501,22 @@ var ThreeD = (function() {
 		    document.onmouseup = handleMouseUp;
 		    document.onmousemove = handleMouseMove;
 
-
 			db = new SQL.Database();
+
+	  		//Init Music
+		    initSoundAnalyzer(); 
+		    loadSound(musicPath);
+
+		    //Init Video
+	  		if(video)
+	  			initVideo(Ny, Nx);
+	  		else
+	  			alert("Your browser does not support GetUserMedia()");
+
+	  		createEmptyData();
 			createDefaultTable();
+			createMusicTable();
+			createVideoTable();
 
 		    tick();
 		    //drawScene();
@@ -442,6 +536,8 @@ var ThreeD = (function() {
 	  	return {
 	  		init : function() {init();},
 	  		execute : function() {execute();},
-	  		cleanup : function() {cleanup();}
+	  		cleanup : function() {cleanup();},
+	  		toggleVideo : function() {toggleVideo();},
+	  		toggleMusic : function() {toggleMusic();}
 	  	};
 })();
