@@ -140,6 +140,7 @@
 		{
 			vec3 ambiCol = getColFromPos(hit.p).xyz;//vec3(.05,.05,.09);
 			vec3 diffCol = vec3(.8,.7,.6);
+			diffCol = vec3(0., 0.5, 0.);
 			vec3 specCol = vec3(1); // TODO spec doesn't seem to work?!
 
 			vec3 n = getNormal(hit.p);
@@ -273,7 +274,10 @@ var numStars = 50;
 
 	function toggleMusic()
 	{
-		TwoD.toggleMusic();
+		if($('input[name="Dimension"]:checked').val() == "3")
+			ThreeD.toggleMusic();
+		else
+			TwoD.toggleMusic();
 	}
 
 	function execute()

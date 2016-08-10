@@ -78,37 +78,76 @@ var ThreeD = (function() {
 	    }
 
 	    function createDefaultTable() {
-		    db.run("CREATE TABLE dummy (x,y,z,r,g,b,a);");
+		    db.run("CREATE TABLE SG4 (x,y,z,r,g,b,a);");
 		    var values = [];
-		    for(var x=0; x<Nx; x++)
+		    var mx = Nx/2.;
+		    var my = Ny/2.;
+		    var mz = Nz/2.;
+		    var whiteCoords = [[mx-1,my-4,0],[mx,my-4,0],[mx-2,my-3,0],[mx+1,my-3,0],[mx-2,my-2,0],[mx-1,my-1,0],[mx,my,0],[mx+1,my+1,0],[mx-2,my+2,0],[mx+1,my+2,0],[mx-1,my+3,0],[mx,my+3,0],//S
+								[mx-1,0,mz-2],[mx,0,mz-2],[Nx-1,my-3,mz-2],[Nx-1,my-2,mz-2],[Nx-1,my-1,mz-2],[Nx-1,my,mz-2],[Nx-1,my+1,mz-2],[Nx-1,my+2,mz-2],
+								[mx-2,0,mz-1],[mx,0,mz-1],[Nx-1,my-4,mz-1],[Nx-1,my+3,mz-1],
+								[mx-3,0,mz],[mx,0,mz],[Nx-1,my-4,mz],[Nx-1,my,mz],[Nx-1,my+3,mz],
+								[mx-4,0,mz+1],[mx-3,0,mz+1],[mx-2,0,mz+1],[mx-1,0,mz+1],[mx,0,mz+1],[mx+1,0,mz+1],[mx+2,0,mz+1],[mx+3,0,mz+1],[Nx-1,my-3,mz+1],[Nx-1,my,mz+1],[Nx-1,my+1,mz+1],[Nx-1,my+2,mz+1]];
+		    var whiteInd = 0;
+		    var whiteCoord = whiteCoords[whiteInd];
+		    for(var z=0; z<Nz; z++)
 		    {
 		    	for(var y=0; y<Ny; y++)
 		    	{
-		    		for(var z=0; z<Nz; z++)
+		    		for(var x=0; x<Nx; x++)
 		    		{
 			    		values.push("("+x+","+y+","+z);
-			    		if(x==y)
+			    		if((x>0)&&(x<Nx-1)&&(y>0)&&(y<Ny-1)&&(z>0)&&(z<Nz-1))//Core, gray
 			    		{
-			    			if(z==0)
-			    				values.push("255, 20, 10, 255)");
-			    			else
-			    				values.push("10, 255, 10, 255)");
+			    			values.push("25,25,25,255)");
 			    		}
-			    		else
+			    		else //outer layer: transparent
 			    		{
-			    			values.push("0,50,255,255)");
+			    			console.log(whiteCoords[whiteInd]+"=="+[x,y,z]);
+
+			    			if((whiteInd < whiteCoords.length) && (whiteCoord[0] == x) && (whiteCoord[1] == y) && (whiteCoord[2] == z))
+			    			{
+			    				console.log("true");
+			    				values.push("255,255,255,255)");
+			    				whiteInd++;
+			    				whiteCoord = whiteCoords[whiteInd];
+			    			}
+			    			else
+			    				values.push("0,0,0,0)");
 			    		}
 			    	}
 		    	}
 		    }
-	    	db.run("INSERT INTO dummy VALUES "+values.join());
+	    	db.run("INSERT INTO SG4 VALUES "+values.join());
 	    }
 
+/*MUSIC*/
 	    function createMusicTable() {
 	    	db.run("CREATE TABLE MUSIC (x,y,z,r,g,b,a);");
 	    	db.run("INSERT INTO MUSIC VALUES "+emptyData.join());
 	    }
 
+	 	function toggleMusic() {
+	 		if($("#playMusic").prop( "checked" )) //start music
+	 		{
+	 			playSound();
+	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
+	        		if(musicIntervalID == 0)
+	        			musicIntervalID = window.setInterval(function() {updateMusicTable();})
+	 		}
+	 		else
+	 		{
+	 			stopSound();
+				if(musicIntervalID > 0) //an interval is active, stop it
+				{
+					clearInterval(musicIntervalID);
+					musicIntervalID = 0;
+				}
+	 		}
+	 	}
+
+
+/*VIDEO*/
 	    function createVideoTable() {
 	    	db.run("CREATE TABLE VIDEO (x,y,z,r,g,b,a);");
 	   		db.run("INSERT INTO VIDEO VALUES "+emptyData.join());
@@ -190,6 +229,7 @@ var ThreeD = (function() {
 			return Math.round((r+g+b)/765.*(Nz-1));
 		}
 
+/*EXECUTE*/
 	    function execute()
 	    {
 			var statement = $("#queryText").val();
@@ -198,11 +238,13 @@ var ThreeD = (function() {
 
 			if(statement.indexOf("MUSIC") > -1) //selects from Music table
 			{
-				musicIntervalID = window.setInterval(function() {updateMusicTable(); }, 100);
+				if(musicIntervalID == 0)
+					musicIntervalID = window.setInterval(function() {updateMusicTable(); }, 100);
 			}
 			if(statement.indexOf("VIDEO")> -1) //selects from Video table
 			{
-				videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
+				if(videoIntervalID == 0)
+					videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
 			}
 			/*if(statement.indexOf("MOVE")>-1) //selects from MOVE table
 			{
@@ -315,7 +357,7 @@ var ThreeD = (function() {
 		  	}
 	  	}
 
-	    // INITIALIZATION
+/*INIT GL STUFF*/
 	    var gl;
 	    function initGL(canvas) 
 	    {

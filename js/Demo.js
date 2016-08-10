@@ -241,15 +241,18 @@ var TwoD = (function() {
 
 			if(statement.indexOf("MUSIC") > -1) //selects from Music table
 			{
-				musicIntervalID = window.setInterval(function() {updateMusicTable(); }, 100);
+				if(musicIntervalID == 0)
+					musicIntervalID = window.setInterval(function() {updateMusicTable(); }, 100);
 			}
 			if(statement.indexOf("VIDEO")> -1) //selects from Video table
 			{
-				videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
+				if(videoIntervalID == 0)
+					videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
 			}
 			if(statement.indexOf("MOVE")>-1) //selects from MOVE table
 			{
-				moveIntervalID = window.setInterval(function() {updateMoveTable(); }, 100);
+				if(moveIntervalID == 0)
+					moveIntervalID = window.setInterval(function() {updateMoveTable(); }, 100);
 			}
 			if(intervalSet())
 			{
