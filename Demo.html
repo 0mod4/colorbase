@@ -50,6 +50,7 @@
 			return max(box(q, l), box(p,n*g/2.));
 		}
 
+		
 		vec3 n = vec3(Nx, Ny, Nz); //grid dimensions
 		float g = 0.5; //lattice constant
 		vec3 boxDim = vec3(.2);
@@ -69,6 +70,19 @@
 			bool it; // out of iterations?
 		};
 
+		vec4 getColFromPos(vec3 pos)
+		//get color of cell hit at position pos
+		{
+			//original position
+			vec3 cell = pos;//(uMVMatrixInverse * vec4(pos, 1.)).xyz;
+			cell = floor(cell/g);
+			cell += vec3(n.x/2., -(n.y/2.-1.), -(n.z/2.-1.)); //ACHTUNG! nur grade Nx,Ny,Nz
+			cell = abs(cell);
+
+			float s = cell.z*n.y*n.x + cell.y*n.x + cell.x;
+			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
+		}
+
 		Hit raytrace(vec3 ro, vec3 rd)
 		// given ray origin ro and ray direction rd returns the hit position, if nothing was hit returns ro
 		{
@@ -83,10 +97,16 @@
 			{
 				p = ro + t*rd;
 				d = scene(p);
+
 				if (d < EPS)
 				{
-					hit.hit = true;
-					break;
+					if(getColFromPos(p).a < 1.)
+						t += 0.1; //HIER BESSER?!
+					else
+					{
+						hit.hit = true;
+						break;
+					}
 				}
 				t += d;
 				if (t > maxT)
@@ -94,7 +114,8 @@
 					hit.t = true;
 					break;
 				}
-				if (i == IMAX-1) hit.it = true;
+				if (i == IMAX-1) 
+					hit.it = true;
 			}
 			hit.d = d;
 			if (!hit.it) hit.p = p;
@@ -105,19 +126,6 @@
 		float round(float a)
 		{
 			return floor(a+0.5);
-		}
-
-		vec4 getColFromPos(vec3 pos)
-		//get color of cell hit at position pos
-		{
-			//original position
-			vec3 cell = pos;//(uMVMatrixInverse * vec4(pos, 1.)).xyz;
-			cell = floor(cell/g);
-			cell += vec3(float(Nx)/2., -(float(Ny)/2.-1.), -(float(Nz)/2.-1.)); //ACHTUNG! nur grade Nx,Ny,Nz
-			cell.y = abs(cell.y);
-
-			float s = cell.z*float(n.y)*float(n.x) + cell.y*float(n.x) + cell.x;
-			return texture2D(uSampler, vec2(s/float(texWidth),0.5));
 		}
 
 		vec3 getNormal(vec3 p) {
@@ -146,6 +154,7 @@
 			}
 
 			vec3 color = ambiCol + lambertian * diffCol / pow(length(lightPosition - hit.p), .4) + specular * specCol / pow(length(lightPosition - hit.p), 2.);
+
 			return vec4(color, 1.);
 		}
 
@@ -169,7 +178,7 @@
 		{
 			vec2 uv = (2.*gl_FragCoord.xy - viewport) / min(viewport.x, viewport.y);
 
-			vec3 ro = vec3(uv, 5.);
+			vec3 ro = vec3(uv, 6.);
 			vec3 rd = normalize(vec3(uv*.8, -1.));
 			ro = transformPos(ro);
 			rd = transformDir(rd);
@@ -194,13 +203,16 @@
 				color = vec4(1,0,1,1); // for debugging
 			}
 			gl_FragColor = color;
-			//vec2 testcoord = vec2(7./float(texWidth), 0.5);
+			//vec2 testcoord = vec2(32./float(texWidth), 0.5);
 			//gl_FragColor = texture2D(uSampler, testcoord); // for testing
 		}
 	</script>
 	<script type='text/javascript' charset='utf-8' src='js/Demo.js'></script>
-	<script type='text/javascript' charset='utf-8' src='js/Demo3D.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/globals.js'></script>
+	<script type='text/javascript' charset='utf-8' src='js/utils.js'></script>
+	<script type='text/javascript' charset='utf-8' src='js/musicUtils.js'></script>
+	<script type='text/javascript' charset='utf-8' src='js/videoUtils.js'></script>
+	<script type='text/javascript' charset='utf-8' src='js/Demo3D.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/starfield.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/gui.js'></script>
 	<script type='text/javascript' charset='utf-8' src='js/greeting_scroller.js'></script>
@@ -239,7 +251,7 @@ var numStars = 50;
 	{
 		if($('input[name="Dimension"]:checked').val() == "3")
 		{
-			ThreeD.cleanup()
+			ThreeD.cleanup() //HIER NOCH FALSCH
 			ThreeD.init()
 		}
 		else
@@ -251,7 +263,19 @@ var numStars = 50;
 
 	function toggleVideo()
 	{
-		TwoD.toggleVideo();
+		if($('input[name="Dimension"]:checked').val() == "3")
+		{
+			ThreeD.toggleVideo();
+		}
+		else
+		{
+			TwoD.toggleVideo();
+		}
+	}
+
+	function toggleMusic()
+	{
+		TwoD.toggleMusic();
 	}
 
 	function execute()

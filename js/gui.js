@@ -1,4 +1,5 @@
 (function ($) {
+
   $.fn.initGUI = function () {
     // init dom
     var input_form = []
@@ -38,8 +39,21 @@
       input_form.query_input.focus()
     }
 
+    function glow (element) {
+      element = $(element)
+      element.addClass('glow')
+      var glow_check_interval_id = window.setInterval(
+        function () {
+          element.removeClass('glow')
+          clearInterval(glow_check_interval_id)
+        }, 250
+      )
+    }
+
+    // handle input of query form
     function preventReloadingInputQuery () {
       input_form.self.submit(function (e) {
+        glow(input_form.query_input)
         e.preventDefault()
       })
     }

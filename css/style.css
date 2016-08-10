@@ -1,3 +1,85 @@
+@-webkit-keyframes text_flicker {
+  0% {
+    opacity: 1; }
+  10% {
+    opacity: 0.96; }
+  15% {
+    opacity: 0.86; }
+  18% {
+    opacity: 0.86; }
+  30% {
+    opacity: 0.94; }
+  35% {
+    opacity: 0.83; }
+  40% {
+    opacity: 0.88; }
+  55% {
+    opacity: 0.81; }
+  60% {
+    opacity: 0.97; }
+  80% {
+    opacity: 0.84; }
+  85% {
+    opacity: 0.81; }
+  100% {
+    opacity: 1; } }
+@keyframes text_flicker {
+  0% {
+    opacity: 1; }
+  10% {
+    opacity: 0.96; }
+  15% {
+    opacity: 0.86; }
+  18% {
+    opacity: 0.86; }
+  30% {
+    opacity: 0.94; }
+  35% {
+    opacity: 0.83; }
+  40% {
+    opacity: 0.88; }
+  55% {
+    opacity: 0.81; }
+  60% {
+    opacity: 0.97; }
+  80% {
+    opacity: 0.84; }
+  85% {
+    opacity: 0.81; }
+  100% {
+    opacity: 1; } }
+@-webkit-keyframes text_glow {
+  25% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; }
+  50% {
+    text-shadow: 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 0 #ffffff; }
+  75% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; } }
+@keyframes text_glow {
+  25% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; }
+  50% {
+    text-shadow: 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 20px #ffffff, 0 0 0 #ffffff; }
+  75% {
+    text-shadow: 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 10px #ffffff, 0 0 0 #ffffff; } }
+@-webkit-keyframes cursor_pulse {
+  0% {
+    opacity: 0; }
+  49% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  99% {
+    opacity: 1; } }
+@keyframes cursor_pulse {
+  0% {
+    opacity: 0; }
+  49% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  99% {
+    opacity: 1; } }
 @font-face {
   font-family: 'meyrinregular';
   src: url("../fonts/meyrin.woff2") format("woff2"), url("../fonts/meyrin.woff") format("woff");
@@ -27,87 +109,18 @@ body {
     -webkit-transition: left 10s ease-in, top 10s ease-in, background 3s ease;
             transition: left 10s ease-in, top 10s ease-in, background 3s ease; }
 
-@-webkit-keyframes text_flicker {
-  0% {
-    opacity: 1; }
-  10% {
-    opacity: 0.96; }
-  15% {
-    opacity: 0.86; }
-  18% {
-    opacity: 0.86; }
-  30% {
-    opacity: 0.94; }
-  35% {
-    opacity: 0.83; }
-  40% {
-    opacity: 0.88; }
-  55% {
-    opacity: 0.81; }
-  60% {
-    opacity: 0.97; }
-  80% {
-    opacity: 0.84; }
-  85% {
-    opacity: 0.81; }
-  100% {
-    opacity: 1; } }
-
-@keyframes text_flicker {
-  0% {
-    opacity: 1; }
-  10% {
-    opacity: 0.96; }
-  15% {
-    opacity: 0.86; }
-  18% {
-    opacity: 0.86; }
-  30% {
-    opacity: 0.94; }
-  35% {
-    opacity: 0.83; }
-  40% {
-    opacity: 0.88; }
-  55% {
-    opacity: 0.81; }
-  60% {
-    opacity: 0.97; }
-  80% {
-    opacity: 0.84; }
-  85% {
-    opacity: 0.81; }
-  100% {
-    opacity: 1; } }
-@-webkit-keyframes cursor_pulse {
-  0% {
-    opacity: 0; }
-  49% {
-    opacity: 0; }
-  50% {
-    opacity: 1; }
-  99% {
-    opacity: 1; } }
-@keyframes cursor_pulse {
-  0% {
-    opacity: 0; }
-  49% {
-    opacity: 0; }
-  50% {
-    opacity: 1; }
-  99% {
-    opacity: 1; } }
 .inputform {
   position: fixed;
   padding: 10px;
   margin: 20px;
   float: left;
   z-index: 10;
-  width: auto;
-  -webkit-animation: text_flicker 0.3s alternate infinite;
-          animation: text_flicker 0.3s alternate infinite; }
+  width: auto; }
   .inputform form {
     color: white;
-    width: 100%; }
+    width: 100%;
+    -webkit-animation: text_flicker 0.3s alternate infinite;
+            animation: text_flicker 0.3s alternate infinite; }
     .inputform form #queryText {
       background: transparent;
       color: transparent;
@@ -119,6 +132,9 @@ body {
       font-size: 250%;
       float: left;
       width: 100%; }
+      .inputform form #queryText.glow {
+        -webkit-animation: text_glow 0.25s infinite;
+                animation: text_glow 0.25s infinite; }
       .inputform form #queryText:active, .inputform form #queryText:focus {
         outline: none !important; }
   .inputform .marker {
