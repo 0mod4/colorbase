@@ -4,10 +4,11 @@
 
   $.fn.initScroller = function () {
     scroller.self = $('div.greetings')
-    scroller.content = scroller.self.children('p')
+    scroller.content = scroller.self.find('p')
     scroller.base_path = getBaseURL()
     scroller.source_path = scroller.base_path + '/greetz.txt'
-    scroller.character_initial_offset = viewport.width + 70 + 'px' // 70px is ~width of a char
+    scroller.character_width = 80 // this is a wild guess
+    scroller.character_initial_offset = viewport.width + scroller.character_width + 'px'
 
     function getBaseURL () {
       var getUrl = window.location
@@ -31,7 +32,7 @@
 
     function renderChar (character) {
       if (!isInvalidCharacter(character)) {
-        // scroller.self.appendChild('<p class="char" style="left: ' + scroller.character_initial_offset + '">' + character + '</p>')
+        $(scroller.self).append('<p class="char" style="left: ' + scroller.character_initial_offset + '">' + character + '</p>')
       }
     }
 
@@ -47,7 +48,10 @@
       for (var char of chars) {
         char = $(char)
         if (!char.hasClass('final')) {
-          char.css({'left': '-70px'})
+          char.css({
+            'left': '-' + scroller.character_width + 'px',
+            'animation': 'greetings_wobble 1.5s infinite ease-in-out'
+          })
           char.addClass('final')
           break
         }
@@ -58,7 +62,7 @@
     // every 3 seconds, set the final position of one greeting character, animation does the rest
     greeting_interval_id = window.setInterval(
       function () {
-        setFinalCharPosition(scroller.content)
+        setFinalCharPosition($('div.greetings').find('p.char'))
       }
     , 550)
   }

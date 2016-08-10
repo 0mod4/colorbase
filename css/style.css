@@ -80,6 +80,20 @@
     opacity: 1; }
   99% {
     opacity: 1; } }
+@-webkit-keyframes greetings_wobble {
+  0% {
+    bottom: 0px; }
+  50% {
+    bottom: 25px; }
+  100% {
+    bottom: 0px; } }
+@keyframes greetings_wobble {
+  0% {
+    bottom: 0px; }
+  50% {
+    bottom: 25px; }
+  100% {
+    bottom: 0px; } }
 @font-face {
   font-family: 'meyrinregular';
   src: url("../fonts/meyrin.woff2") format("woff2"), url("../fonts/meyrin.woff") format("woff");
@@ -193,7 +207,7 @@ body {
     margin: 0;
     padding: 0;
     float: left;
-    bottom: 25px;
+    bottom: 0px;
     z-index: 9000; }
 
 #container {
