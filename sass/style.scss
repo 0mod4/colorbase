@@ -1,7 +1,14 @@
 @font-face {
   font-family: 'meyrinregular';
-  src: url('../fonts/meyrin-webfont.woff2') format('woff2'),
-       url('../fonts/meyrin-webfont.woff') format('woff');
+  src: url('../fonts/meyrin.woff2') format('woff2'),
+       url('../fonts/meyrin.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'asciid';
+  src: url('../fonts/asciid.woff2') format('woff2'),
+       url('../fonts/asciid.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -150,6 +157,29 @@ body {
   form[name='options'] {
     background: rgba(0,0,0,0.75);
     color: rgb(255,255,255);
+    // initially hidden, can be toggled later with JS
+    display: none;
+  }
+}
+
+.greetings {
+  width: 100%;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0px;
+  height: 127px;
+  p.char {
+    transition: left 10s linear;
+    color: white;
+    font-family: 'asciid';
+    font-size: 70px;
+    position: absolute;
+    display: block;
+    margin: 0;
+    padding: 0;
+    float: left;
+    bottom: 25px;
+    z-index: 9000;
   }
 }
 
@@ -158,7 +188,6 @@ body {
   margin: 0 auto;
   z-index: 2; // display level
   position: relative;
-  opacity: 0.9;
   .cell {
     background-color: rgba(255,255,255,0.25);
     float: left;
