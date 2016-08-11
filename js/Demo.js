@@ -360,6 +360,7 @@ var TwoD = (function() {
 		  			else
 		  				a = clamp(result[i].a,0,1);
 		  			var id = [Math.round(result[i].x), Math.round(result[i].y)];
+//TODO: add Colors if cell selected multiple times!
 		  			$("#cell"+id.join("-")).css({backgroundColor: "rgba("+r+","+g+","+b+","+a+")"});
 		  		}
 		  	}
@@ -367,6 +368,8 @@ var TwoD = (function() {
 
 	    // INITIALIZATION
 	    function init() {
+
+	    	activeDim = 2;
 
 	  		db = new SQL.Database();
 
@@ -462,6 +465,8 @@ var TwoD = (function() {
 	    	db = null;
 
 	    	$('#container .cell').remove();
+
+	    	activeDim = 0;
 	    }
 
 	  	return {

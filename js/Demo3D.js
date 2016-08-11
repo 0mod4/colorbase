@@ -103,11 +103,8 @@ var ThreeD = (function() {
 			    		}
 			    		else //outer layer: transparent
 			    		{
-			    			console.log(whiteCoords[whiteInd]+"=="+[x,y,z]);
-
 			    			if((whiteInd < whiteCoords.length) && (whiteCoord[0] == x) && (whiteCoord[1] == y) && (whiteCoord[2] == z))
 			    			{
-			    				console.log("true");
 			    				values.push("255,255,255,255)");
 			    				whiteInd++;
 			    				whiteCoord = whiteCoords[whiteInd];
@@ -496,9 +493,11 @@ var ThreeD = (function() {
 	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 	    }
 
+	    var stopRendering;
 	  	function tick() 
 	  	{
-	    	requestAnimationFrame(tick);
+	  		if(!stopRendering)
+	    		requestAnimationFrame(tick);
 	    	drawScene();
 	  	}
 
@@ -515,6 +514,10 @@ var ThreeD = (function() {
 
 	    function init() 
 	    {
+console.log("3Dinit");
+			activeDim = 3;
+			stopRendering = false;
+
 	    	if(Nx*Ny*Nz > texWidth)
 	    		alert('insufficient Texture width!');
 
@@ -566,13 +569,17 @@ var ThreeD = (function() {
 
 	    function cleanup()
 	    {
-	    	db.run("DROP TABLE dummy;");
+	    	db.run("DROP TABLE SG4");
 	    	db.run("DROP TABLE VIDEO;");
 	    	db.run("DROP TABLE MUSIC;");
-	    	db.run("DROP TABLE MOVE;");
 	    	db = null;
+	    	gl.deleteTexture(colorTex);
+	    	gl.deleteBuffer(squareVertexPositionBuffer);
 
 	    	$('#container .nestedElement').remove();
+
+	    	stopRendering = true;
+	    	activeDim = 0;
 	    }
 
 	  	return {

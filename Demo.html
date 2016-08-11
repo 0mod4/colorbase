@@ -3,7 +3,8 @@
 <head>
 	<link rel="stylesheet" href="css/normalize.css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
-	<script src='js/sql-memory-growth.js'></script>
+	<<!--<script src='js/sql-memory-growth.js'></script>-->
+	<script src='js/sql.js'></script>
 	<script src='js/jquery.min.js'></script>
 	<script src='js/caret.js'></script>
 	<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
@@ -193,7 +194,6 @@
 			if (hit.hit) // we hit something
 			{
 				color = getColor(hit, lightPos); // TODO not yet working with mod scene
-				//color = vec4(.6,.7,.8,1.);
 			}
 			else if (hit.t) // t > maxT
 			{
@@ -248,17 +248,22 @@ var numStars = 50;
 		}
 	}
 
-	function toggleDimension()
+	function setDimension(d)
 	{
-		if($('input[name="Dimension"]:checked').val() == "3")
+		if(activeDim != d)
 		{
-			ThreeD.cleanup() //HIER NOCH FALSCH
-			ThreeD.init()
-		}
-		else
-		{
-			TwoD.cleanup()
-			TwoD.init()
+			if(d == 3)
+			{
+				if(activeDim == 2)
+					TwoD.cleanup()
+				ThreeD.init()
+			}
+			else
+			{
+				if(activeDim == 3)
+					ThreeD.cleanup()
+				TwoD.init()
+			}
 		}
 	}
 
@@ -326,9 +331,9 @@ var numStars = 50;
 				<input type="text" id="numSoundBars" size="40" value="5">
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2" checked = "checked">
+				<input type="radio" id="2D" name="Dimension" value="2" >
 				<label for="2D">2D</label>
-				<input type="radio" id="3D" name="Dimension" value="3" >
+				<input type="radio" id="3D" name="Dimension" value="3" checked = "checked">
 				<label for="3D">3D</label>
 				<label for="starfield_toggle">OMG it's full of stars!</label>
 				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">

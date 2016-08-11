@@ -7,4 +7,6 @@ viewport['center_y'] = viewport['height'] / 2
 
 musicPath = "Music/Subdream-[20110504]-Chipsenheim.mp3";
 
+var activeDim = 0;
+
 console.log('global variables initialized')
