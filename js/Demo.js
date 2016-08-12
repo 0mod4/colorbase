@@ -1,4 +1,4 @@
-//http://www.smartjava.org/examples/webaudio/example2.html
+'use strict';
 var TwoD = (function() {
 	    var emptyData = [];
 	    var parsedSelect;
@@ -464,7 +464,11 @@ var TwoD = (function() {
 	    	db.run("DROP TABLE MOVE;");
 	    	db = null;
 
-	    	$('#container .cell').remove();
+	    	$('#container *').remove();
+	    	$('#container').css({'width': '100%'});
+
+	    	emptyData = [];
+			prevData = [];
 
 	    	activeDim = 0;
 	    }

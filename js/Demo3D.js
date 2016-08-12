@@ -115,13 +115,15 @@ var ThreeD = (function() {
 			    	}
 		    	}
 		    }
-	    	db.run("INSERT INTO SG4 VALUES "+values.join());
+		    var joinedArray = values.join();
+	    	db.run("INSERT INTO SG4 VALUES "+joinedArray);
 	    }
 
 /*MUSIC*/
 	    function createMusicTable() {
 	    	db.run("CREATE TABLE MUSIC (x,y,z,r,g,b,a);");
-	    	db.run("INSERT INTO MUSIC VALUES "+emptyData.join());
+	    	var joinedData = emptyData.join();
+	    	db.run("INSERT INTO MUSIC VALUES "+joinedData);
 	    }
 
 	 	function toggleMusic() {
@@ -147,7 +149,8 @@ var ThreeD = (function() {
 /*VIDEO*/
 	    function createVideoTable() {
 	    	db.run("CREATE TABLE VIDEO (x,y,z,r,g,b,a);");
-	   		db.run("INSERT INTO VIDEO VALUES "+emptyData.join());
+	    	var joinedData = emptyData.join();
+	   		db.run("INSERT INTO VIDEO VALUES "+joinedData);
 	    }
 
 		function toggleVideo()
@@ -214,7 +217,8 @@ var ThreeD = (function() {
 			    		}
 			    	}
 			    }
-			    db.run("INSERT INTO VIDEO VALUES "+values.join());
+			    var joinedArray = values.join();
+			    db.run("INSERT INTO VIDEO VALUES "+joinedArray);
 			}
 			else{
 				db.run("UPDATE VIDEO SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
@@ -480,10 +484,10 @@ var ThreeD = (function() {
 
 	        gl.bindTexture(gl.TEXTURE_2D, colorTex);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, dataArray);
-			gl.bindTexture(gl.TEXTURE_2D, null);
+//			gl.bindTexture(gl.TEXTURE_2D, null);
 
 	        gl.activeTexture(gl.TEXTURE0);
-        	gl.bindTexture(gl.TEXTURE_2D, colorTex);
+//        	gl.bindTexture(gl.TEXTURE_2D, colorTex);
         	gl.uniform1i(shaderProgram.samplerUniform, 0);
 
 		    mat4.identity(mvMatrix);
@@ -497,8 +501,10 @@ var ThreeD = (function() {
 	  	function tick() 
 	  	{
 	  		if(!stopRendering)
+	  		{
 	    		requestAnimationFrame(tick);
-	    	drawScene();
+	    		drawScene();
+	  		}
 	  	}
 
 	    function initTexture() 
@@ -508,7 +514,6 @@ var ThreeD = (function() {
 	        gl.bindTexture(gl.TEXTURE_2D, colorTex);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	        gl.generateMipmap(gl.TEXTURE_2D);
 	        gl.bindTexture(gl.TEXTURE_2D, null);
 	    }
 
@@ -575,8 +580,15 @@ console.log("3Dinit");
 	    	db = null;
 	    	gl.deleteTexture(colorTex);
 	    	gl.deleteBuffer(squareVertexPositionBuffer);
+	    	$('#container *').remove();
 
-	    	$('#container .nestedElement').remove();
+	    	mat4.identity(mvMatrix);
+	    	mat4.identity(rotMat);
+
+	    	dataArray = [];
+	    	emptyData = [];
+	    	drawDingsie = [];
+	    	prevData = [];
 
 	    	stopRendering = true;
 	    	activeDim = 0;

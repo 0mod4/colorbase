@@ -3,7 +3,7 @@
 <head>
 	<link rel="stylesheet" href="css/normalize.css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="css/style.css" media="screen" charset="utf-8">
-	<<!--<script src='js/sql-memory-growth.js'></script>-->
+	<!--<script src='js/sql-memory-growth.js'></script>-->
 	<script src='js/sql.js'></script>
 	<script src='js/jquery.min.js'></script>
 	<script src='js/caret.js'></script>
@@ -331,9 +331,9 @@ var numStars = 50;
 				<input type="text" id="numSoundBars" size="40" value="5">
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2" >
+				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" >
 				<label for="2D">2D</label>
-				<input type="radio" id="3D" name="Dimension" value="3" checked = "checked">
+				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)" checked = "checked">
 				<label for="3D">3D</label>
 				<label for="starfield_toggle">OMG it's full of stars!</label>
 				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
