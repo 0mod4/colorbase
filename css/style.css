@@ -221,7 +221,7 @@ body {
     margin-left: 1px;
     margin-bottom: 1px; }
 
-#videoCanvas {
+.helperCanvas {
   display: none; }
 
 #videoDiv {
@@ -229,5 +229,7 @@ body {
   right: 0;
   bottom: 0;
   padding: 10px; }
+  #videoDiv #imgSource {
+    display: none; }
 
 /*# sourceMappingURL=style.css.map */
