@@ -16,7 +16,6 @@
 
     function centerOptionForm () {
       var new_position = viewport.center_y - (option_form.container_height) / 2
-      console.log(new_position)
       option_form.container.css({
         'top': new_position + 'px'
       })

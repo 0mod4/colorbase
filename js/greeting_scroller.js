@@ -1,6 +1,7 @@
 (function ($) {
   var scroller = []
   var check_scroller_interval_id
+  var current_top
 
   $.fn.initScroller = function () {
     scroller.self = $('div.greetings')
@@ -45,10 +46,9 @@
     }
 
     function scrollText() {
-      /// HIER DANN DEN TEXT NACH LINKS SCROLLEN LASSEN
-      /// DAZU VORHER DEN TEXT RECHTS AUSSERHALB DES VIEWPORTS PLATZIEREN
-      /// WENN ER EINMAL DURCHGELAUFEN IST, ZURÜCKSETZEN UND WIEDER DURCHLAUFEN LASSEN
-      console.log('Stell dir vor der Text scrollt... und keiner guckt hin!')
+      current_top = parseInt($('.text').css('top'), 10)
+      new_top = current_top - 80
+      $('.text').css('top', new_top + 'px')
     }
 
     createChars(scroller.source_path)
@@ -58,6 +58,12 @@
         isScrollerCreated()
       }
     , 550)
+    scroll_scroller_interval_id = window.setInterval(
+      function () {
+        scrollText()
+        console.log('fired scroller')
+      }
+    , 10000)
   }
 }(jQuery))
 console.log('greetings scroller initialized')
