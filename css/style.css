@@ -94,6 +94,32 @@
     bottom: 25px; }
   100% {
     bottom: 0px; } }
+@-webkit-keyframes rainbow {
+  0% {
+    background-position-y: 0%; }
+  100% {
+    background-position-y: 330%; } }
+@keyframes rainbow {
+  0% {
+    background-position-y: 0%; }
+  100% {
+    background-position-y: 330%; } }
+@-webkit-keyframes intro_scale {
+  from {
+    z-index: 99;
+    opacity: 0;
+    -webkit-transform: scale(2);
+            transform: scale(2);
+    top: 15%;
+    right: 20%; } }
+@keyframes intro_scale {
+  from {
+    z-index: 99;
+    opacity: 0;
+    -webkit-transform: scale(2);
+            transform: scale(2);
+    top: 15%;
+    right: 20%; } }
 @font-face {
   font-family: 'meyrinregular';
   src: url("../fonts/meyrin.woff2") format("woff2"), url("../fonts/meyrin.woff") format("woff");
@@ -132,7 +158,7 @@ body {
   width: auto; }
   .inputform form {
     color: white;
-    width: 100%;
+    width: 60%;
     -webkit-animation: text_flicker 0.3s alternate infinite;
             animation: text_flicker 0.3s alternate infinite; }
     .inputform form #queryText {
@@ -143,9 +169,14 @@ body {
       margin: 0;
       padding: 0;
       font-family: "meyrinregular";
+      -webkit-transition: background-color 1s ease-in-out;
+              transition: background-color 1s ease-in-out;
       font-size: 250%;
       float: left;
-      width: 100%; }
+      width: 100%;
+      border-radius: 10px; }
+      .inputform form #queryText:focus {
+        background-color: black; }
       .inputform form #queryText.glow {
         -webkit-animation: text_glow 0.25s infinite;
                 animation: text_glow 0.25s infinite; }
@@ -163,6 +194,34 @@ body {
     box-shadow: 0 0 10px #6eff00;
     background-image: -webkit-repeating-linear-gradient(#bfffbc 0%, #bfffbc 2.5%, rgba(110, 255, 0, 0.5) 2.6%, rgba(110, 255, 0, 0.5) 5%);
     background-image: repeating-linear-gradient(#bfffbc 0%, #bfffbc 2.5%, rgba(110, 255, 0, 0.5) 2.6%, rgba(110, 255, 0, 0.5) 5%); }
+
+#logo {
+  width: 788px;
+  height: 332px;
+  position: absolute;
+  right: -120px;
+  top: -50px;
+  -webkit-transform: scale(0.7);
+      -ms-transform: scale(0.7);
+          transform: scale(0.7);
+  opacity: 1;
+  -webkit-animation: intro_scale 3s ease-in-out 1;
+          animation: intro_scale 3s ease-in-out 1;
+  z-index: 9; }
+  #logo span.logo-fg {
+    position: absolute;
+    background: url("../img/logo_cutout.gif") no-repeat;
+    display: block;
+    width: 788px;
+    height: 332px;
+    top: -2px; }
+  #logo .gradient {
+    -webkit-clip-path: polygon(164px 96px, 143px 109px, 144px 142px, 128px 182px, 118px 91px, 43px 118px, 97px 159px, 102px 196px, 117px 204px, 29px 246px, 173px 212px, 168px 242px, 281px 208px, 257px 192px, 261px 178px, 315px 214px, 490px 226px, 519px 234px, 533px 252px, 583px 277px, 596px 246px, 759px 304px, 724px 247px, 646px 210px, 601px 163px, 613px 148px, 623px 47px, 586px 95px, 570px 113px, 543px 193px, 536px 144px, 521px 116px, 499px 94px, 523px 51px, 458px 70px, 463px 57px, 456px 49px, 409px 58px, 393px 81px, 380px 75px, 296px 109px, 288px 133px, 257px 143px, 243px 67px, 221px 130px, 210px 121px, 222px 105px, 168px 66px, 154px 67px);
+    background: url("../img/rainbow.gif") repeat;
+    width: 788px;
+    height: 332px;
+    -webkit-animation: rainbow 2s linear infinite;
+            animation: rainbow 2s linear infinite; }
 
 .optionform {
   z-index: 10;
@@ -221,7 +280,7 @@ body {
     margin-left: 1px;
     margin-bottom: 1px; }
 
-#videoCanvas {
+.helperCanvas {
   display: none; }
 
 #videoDiv {
@@ -229,5 +288,6 @@ body {
   right: 0;
   bottom: 0;
   padding: 10px; }
-
+  #videoDiv #imgSource {
+    display: none; }
 /*# sourceMappingURL=style.css.map */
