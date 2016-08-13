@@ -5,8 +5,6 @@ var ThreeD = (function() {
 	    var emptyData = [];
 	    var parsedSelect;
 	    var clearColor = [0,0,0,255];
-	    var musicColor = [255,0,0,255];
-	    var moveColor = [255,142,0,255];
 
 	    var Nx = 12;
 		var Ny = 12;
@@ -14,8 +12,6 @@ var ThreeD = (function() {
 		var texWidth = 8192;
 
 	    var db;
-
-		var prevData = []; //needed for motion detection
 
 		//modelview matrix
 	    var mvMatrix = mat4.create();
@@ -119,6 +115,35 @@ var ThreeD = (function() {
 	    	db.run("INSERT INTO SG4 VALUES "+joinedArray);
 	    }
 
+	    function createImageTable() {
+	    	var colArray = [[237,68,67],[250,238,59],[55,88,165],[56,180,84],[255,255,255],[244,119,53]];
+	    	db.run("CREATE TABLE CUBE (x,y,z,r,g,b,a);");
+	    	var values = [];
+		    for(var z=0; z<Nz; z=z+4)
+		    {
+		    	for(var y=0; y<Ny; y=y+4)
+		    	{
+		    		for(var x=0; x<Nx; x=x+4)
+		    		{
+		    			var col = colArray[Math.floor(Math.random()*6)];
+		    			for(var iz=0; iz<4; iz++)
+		    			{
+		    				for(var iy=0; iy<4; iy++)
+		    				{
+		    					for(var ix=0; ix<4; ix++)
+		    					{
+		    						values.push("("+(x+ix)+","+(y+iy)+","+(z+iz));
+		    						values.push(col[0]+","+col[1]+","+col[2]+",255)");
+		    					}
+		    				}
+		    			}
+			    	}
+			    }
+			}
+			var joinedArray = values.join();
+			db.run("INSERT INTO CUBE VALUES "+joinedArray);
+	    }
+
 /*MUSIC*/
 	    function createMusicTable() {
 	    	db.run("CREATE TABLE MUSIC (x,y,z,r,g,b,a);");
@@ -132,7 +157,7 @@ var ThreeD = (function() {
 	 			playSound();
 	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
 	        		if(musicIntervalID == 0)
-	        			musicIntervalID = window.setInterval(function() {updateMusicTable();})
+	        			musicIntervalID = window.setInterval(function() {updateMusicTable();}, 100)
 	 		}
 	 		else
 	 		{
@@ -144,6 +169,48 @@ var ThreeD = (function() {
 				}
 	 		}
 	 	}
+
+	    function updateMusicTable() {
+	    	if(typeof soundBars !== 'undefined') //no music playing
+	    	{
+	    		db.run("DELETE FROM MUSIC");
+		    	var n = nSoundBars;
+		    	var num = 1;
+
+		    	//have just one soundbar as centered 'ball'
+		    	var values = [];
+		    	var maxR = Math.min(Nx, Ny, Nz)*0.5;
+		    	var r = Math.min(soundBars[0]*maxR/150, maxR);
+		    	r = r*r;
+			    for(var x=0; x<Nx; x++)
+			    {
+			    	for(var y=0; y<Ny; y++)
+			    	{
+			    		for(var z=0; z<Nz; z++)
+			    		{
+				    		values.push("("+x+","+y+","+z);
+				    		var tx = x-Nx*0.5;
+				    		var ty = y-Ny*0.5;
+				    		var tz = z-Nz*0.5;
+				    		if(tx*tx+ty*ty+tz*tz <= r)
+				    		{
+				    			values.push(musicColor[0]+","+musicColor[1]+","+musicColor[2]+",255)");
+				    		}
+				    		else
+				    		{
+				    			values.push("0,0,0,0)");
+				    		}
+			    		}
+			    	}
+			    }
+			    var joinedArray = values.join();
+			    db.run("INSERT INTO MUSIC VALUES "+joinedArray);
+			}
+			else
+			{
+				db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
+			}
+	    }
 
 
 /*VIDEO*/
@@ -186,7 +253,6 @@ var ThreeD = (function() {
 
 		function updateVideoTable()
 		{
-			console.log("updateVideo3D");
 			if($("#useVideo").prop( "checked" ))
 			{
 			    var c = document.getElementById('videoCanvas');
@@ -247,10 +313,6 @@ var ThreeD = (function() {
 				if(videoIntervalID == 0)
 					videoIntervalID = window.setInterval(function() {updateVideoTable(); }, 100);
 			}
-			/*if(statement.indexOf("MOVE")>-1) //selects from MOVE table
-			{
-				moveIntervalID = window.setInterval(function() {updateMoveTable(); }, 100);
-			}*/
 			if(intervalSet())
 			{
 				queryIntervalID = window.setInterval(function() {query(statement); }, 100);
@@ -271,6 +333,7 @@ var ThreeD = (function() {
 			        var row = stmt.getAsObject();
 			        result.push(row);
 			    }
+			    stmt.free();
 			}
 			else
 			{
@@ -326,7 +389,7 @@ var ThreeD = (function() {
 	  			a_ = 255;
 
 	  		//fill color texture Array
-	  		//TODO: delete data array
+	  		dataArray.fill(0);
 	  		for(var i=0; i<result.length; i++)
 	  		{
 	  			var r = clamp(Math.round(result[i].r), 0, 255);
@@ -522,6 +585,7 @@ var ThreeD = (function() {
 console.log("3Dinit");
 			activeDim = 3;
 			stopRendering = false;
+			nSoundBars = 1;
 
 	    	if(Nx*Ny*Nz > texWidth)
 	    		alert('insufficient Texture width!');
@@ -554,8 +618,8 @@ console.log("3Dinit");
 			db = new SQL.Database();
 
 	  		//Init Music
-		    initSoundAnalyzer(); 
-		    loadSound(musicPath);
+		    //initSoundAnalyzer(); 
+		    //loadSound(musicPath);
 
 		    //Init Video
 	  		if(video)
@@ -567,6 +631,7 @@ console.log("3Dinit");
 			createDefaultTable();
 			createMusicTable();
 			createVideoTable();
+			createImageTable();
 
 		    tick();
 		    //drawScene();
@@ -574,6 +639,8 @@ console.log("3Dinit");
 
 	    function cleanup()
 	    {
+	    	clearIntervals();
+
 	    	db.run("DROP TABLE SG4");
 	    	db.run("DROP TABLE VIDEO;");
 	    	db.run("DROP TABLE MUSIC;");
@@ -588,7 +655,6 @@ console.log("3Dinit");
 	    	dataArray = [];
 	    	emptyData = [];
 	    	drawDingsie = [];
-	    	prevData = [];
 
 	    	stopRendering = true;
 	    	activeDim = 0;

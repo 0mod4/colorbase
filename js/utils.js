@@ -27,7 +27,7 @@
 				clearInterval(musicIntervalID);
 				musicIntervalID = 0;
 			}
-			if(musicIntervalID > 0) //an interval is active, stop it
+			if(videoIntervalID > 0) //an interval is active, stop it
 			{
 				clearInterval(videoIntervalID);
 				videoIntervalID = 0;

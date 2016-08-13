@@ -195,14 +195,14 @@
 			{
 				color = getColor(hit, lightPos); // TODO not yet working with mod scene
 			}
-			else if (hit.t) // t > maxT
+			else if (hit.t || hit.it) // t > maxT
 			{
 				color = getBackgroundColor(hit);
 			}
-			else if (hit.it) // out of iterations
-			{
-				color = vec4(1,0,1,1); // for debugging
-			}
+			//else if (hit.it) // out of iterations
+			//{
+			//	color = vec4(1,0,1,1); // for debugging
+			//}
 			gl_FragColor = color;
 			//vec2 testcoord = vec2(32./float(texWidth), 0.5);
 			//gl_FragColor = texture2D(uSampler, testcoord); // for testing
@@ -238,6 +238,10 @@ var numStars = 50;
 
 	function init()
 	{
+  		//Init Music
+	    initSoundAnalyzer(); 
+	    loadSound(musicPath);
+
 		if($('input[name="Dimension"]:checked').val() == 3)
 		{
 			ThreeD.init()
@@ -285,6 +289,16 @@ var numStars = 50;
 			ThreeD.toggleMusic();
 		else
 			TwoD.toggleMusic();
+
+
+
+		  //source = aCont.createBufferSource();
+		  source.connect(soundAnalyzer);
+		  //source.buffer = musicBuffer;
+		  source.connect(aCont.destination);
+		  scriptProcessor.connect(aCont.destination);
+		  //source.start(0);
+
 	}
 
 	function execute()
@@ -328,10 +342,9 @@ var numStars = 50;
 			<fieldset>
 				<label for="playMusic">Music</label>
 				<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
-				<input type="text" id="numSoundBars" size="40" value="5">
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" >
+				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)">
 				<label for="2D">2D</label>
 				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)" checked = "checked">
 				<label for="3D">3D</label>
@@ -341,9 +354,11 @@ var numStars = 50;
 		</form>
  	</div>
 
-  <div id="videoDiv">
+  	<div id="videoDiv">
     	<video id="camFeed" width="320" height="240" autoplay></video>
-    	<canvas id="videoCanvas" width="50" height="50"></canvas>
+    	<canvas class="helperCanvas" id="videoCanvas" width="50" height="50"></canvas><!--change resolution here!!!!-->
+    	<canvas class="helperCanvas" id="imageCanvas" width="50" height="50"></canvas>
+    	<img id="imgSource" src="Pictures/cube.png"/>
 	</div>
 
 	<div id="container">

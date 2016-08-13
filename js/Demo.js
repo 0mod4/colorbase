@@ -2,9 +2,7 @@
 var TwoD = (function() {
 	    var emptyData = [];
 	    var parsedSelect;
-	    var clearColor = [255,255,255,0.25];
-	    var musicColor = [255,0,0,1];
-	    var moveColor = [255,142,0,1];
+	    var clearColor = [255,255,255,0.15];
 
 		var rows = 45;
 		var cols = 45;
@@ -60,12 +58,34 @@ var TwoD = (function() {
 	   		db.run("INSERT INTO MOVE VALUES "+emptyData.join());
 	    }
 
+	    function createImageTable() {
+	    	db.run("CREATE TABLE CUBE (x,y,r,g,b,a);");
+			var c = document.getElementById('imageCanvas');
+			var v = document.getElementById('imgSource');
+			c.getContext('2d').drawImage(v, 0, 0, cols, rows);
+			var data = c.getContext('2d').getImageData(0, 0, cols, rows).data;
+		    var values = [];
+		    for(var x=0; x<cols; x++)
+		    {
+		    	for(var y=0; y<rows; y++)
+		    	{
+		    		var s = (y*cols+x)*4;
+	    			values.push("("+x+","+y);
+	    			values.push(data[s]);
+	    			values.push(data[s+1]);
+	    			values.push(data[s+2]);
+	    			values.push(data[s+3]+")");
+		    	}
+		    }
+		    db.run("INSERT INTO CUBE VALUES "+values.join());
+	    }
+
 	    /*TABLE UPDATES*/
 	    function updateMusicTable() {
 	    	db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
 	    	if(typeof soundBars !== 'undefined') //no music playing
 	    	{
-		    	var n = $("#numSoundBars").val();
+		    	var n = nSoundBars;
 		    	var num = 1;
 		    	//calculate width of one sound bar
 		    	if(cols > n) //more cols than soundbars
@@ -90,7 +110,9 @@ var TwoD = (function() {
 		    			cursb = 0;
 		    		else
 		    			cursb = soundBars[sb];
-		    		sbHeight = Math.floor(cursb/diffPerCell);
+		    		var sbHeight = Math.floor(cursb/diffPerCell);
+
+		    		console.log(sbHeight);
 
 		    		db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=? WHERE y>? AND x BETWEEN ? AND ?", [musicColor[0],musicColor[1],musicColor[2],musicColor[3],rows-sbHeight,sb*num,(sb+1)*num-1]);
 		    	}
@@ -127,7 +149,7 @@ var TwoD = (function() {
 		        	{
 		        		if(videoIntervalID == 0)
 		        		{console.log("start video interval");
-		        			videoIntervalID = window.setInterval(function() {updateVideoTable();})
+		        			videoIntervalID = window.setInterval(function() {updateVideoTable();}, 100)
 		        		}
 		        	}
 		        }
@@ -161,7 +183,7 @@ var TwoD = (function() {
 			    {
 			    	for(var y=0; y<rows; y++)
 			    	{
-			    		s = (y*cols+x)*4;
+			    		var s = (y*cols+x)*4;
 		    			values.push("("+x+","+y);
 		    			values.push(data[s]);
 		    			values.push(data[s+1]);
@@ -273,6 +295,7 @@ var TwoD = (function() {
 			        var row = stmt.getAsObject();
 			        result.push(row);
 			    }
+			    stmt.free();
 			}
 			else
 			{
@@ -346,10 +369,18 @@ var TwoD = (function() {
 				return Math.min(Math.max(val, min), max);
 		  	}
 
+		  	function getCurColor(divID)
+		  	{
+		  		var strCol = $("#"+divID).css('background-color');
+		  		strCol.split(',');
+		  		res = [];
+		  		res.push(substrign);
+		  	}
+
 		  	function instantTransition(result)
 		  	{
-				$("#container").children().css({backgroundColor: "rgb("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+")"});
-		  		for(i=0; i<result.length; i++)
+				$("#container").children().css({backgroundColor: "rgba("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")"});
+		  		for(var i=0; i<result.length; i++)
 		  		{
 		  			var r = clamp(Math.round(result[i].r), 0, 255);
 		  			var g = clamp(Math.round(result[i].g), 0, 255);
@@ -360,7 +391,9 @@ var TwoD = (function() {
 		  			else
 		  				a = clamp(result[i].a,0,1);
 		  			var id = [Math.round(result[i].x), Math.round(result[i].y)];
-//TODO: add Colors if cell selected multiple times!
+					var prevColor = $('#cell'+id.join("-")).css('background-color');
+					prevColor.split(',');
+					var curCell = $('#cell'+id.join("-"));
 		  			$("#cell"+id.join("-")).css({backgroundColor: "rgba("+r+","+g+","+b+","+a+")"});
 		  		}
 		  	}
@@ -370,12 +403,13 @@ var TwoD = (function() {
 	    function init() {
 
 	    	activeDim = 2;
+	    	nSoundBars = 25;
 
 	  		db = new SQL.Database();
 
 	  		//Init Music
-		    initSoundAnalyzer(); 
-		    loadSound(musicPath);
+		    //initSoundAnalyzer(); 
+		    //DEBUGloadSound(musicPath);
 
 		    //Init Video
 	  		if(video)
@@ -454,10 +488,13 @@ var TwoD = (function() {
 	  		createMusicTable();
 	  		createVideoTable();
 	  		createMoveTable();
+	  		createImageTable();
 	    }
 
 	    function cleanup()
 	    {
+	    	clearIntervals();
+
 	    	db.run("DROP TABLE dummy;");
 	    	db.run("DROP TABLE VIDEO;");
 	    	db.run("DROP TABLE MUSIC;");

@@ -5,6 +5,7 @@
 	    var scriptProcessor;
 	    var source;
 	    var soundBars;
+	    var nSoundBars;
 
 	    function initSoundAnalyzer()
 	    {
@@ -24,16 +25,16 @@
 		        // get the average, bincount is fftsize / 2
 		        var array =  new Uint8Array(soundAnalyzer.frequencyBinCount);
 		        soundAnalyzer.getByteFrequencyData(array);
-		        getSoundBars(array, $("#numSoundBars").val());
+		        getSoundBars(array);
 		    }
 
-		    function getSoundBars(array, n) {
+		    function getSoundBars(array) {
 		        soundBars = [];
 		        var length = array.length;
-		 		var barWidth = Math.floor(length/n);
+		 		var barWidth = Math.floor(length/nSoundBars);
 		 		var values;
 
-		 		for(var c=0; c<n-1; c++)
+		 		for(var c=0; c<nSoundBars-1; c++)
 		 		{
 		        	values = 0;
 		 			for(var i=0; i<barWidth; i++)
@@ -45,11 +46,11 @@
 
 		 		//last bar eventually takes more frequencies
 		 		values = 0;
-		 		for(var i=(n-1)*barWidth+1; i<length; i++)
+		 		for(var i=(nSoundBars-1)*barWidth+1; i<length; i++)
 		 		{
 		 			values += array[i];
 		 		}
-		 		soundBars.push(values/(length-((n-1)*barWidth+1)));
+		 		soundBars.push(values/(length-((nSoundBars-1)*barWidth+1)));
 		    }
 	    }
 
