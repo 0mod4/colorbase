@@ -104,7 +104,7 @@ var TwoD = (function() {
 
 	    /*TABLE UPDATES*/
 	    function updateMusicTable() {
-	    	db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
+	    	db.run("UPDATE MUSIC SET r=?, g=?, b=?, a=?",[0,0,0,0]);//[clearColor[0],clearColor[1],clearColor[2],clearColor[3]]);
 	    	if(typeof soundBars !== 'undefined') //no music playing
 	    	{
 		    	var n = nSoundBars;
@@ -139,8 +139,9 @@ var TwoD = (function() {
 	    }
 
 	 	function toggleMusic() {
+	 		console.log("toggle 2D Music");
 	 		if($("#playMusic").prop( "checked" )) //start music
-	 		{
+	 		{console.log("play");
 	 			playSound();
 	        	if((queryIntervalID > 0) && ($("#queryText").val().indexOf("MUSIC")> -1))
 	        		if(musicIntervalID == 0)
@@ -237,6 +238,7 @@ var TwoD = (function() {
 
 		function updateMoveTable()
 		{
+			console.log("Update move table");
 			if($("#useVideo").prop( "checked" ))
 			{
 			    var c = document.getElementById('videoCanvas');
@@ -253,14 +255,14 @@ var TwoD = (function() {
 				    	for(var y=0; y<rows; y++)//Math.floor(rows/2.0); y++)
 				    	{
 				    		values.push("("+x+","+y);
-				    		s = (y*cols+x)*4;
+				    		var s = (y*cols+x)*4;
 				    		if(!comparePixel(data[s], data[s+1], data[s+2], prevData[s], prevData[s+1], prevData[s+2]))
 				    		{
 				    			values.push(moveColor[0]+","+moveColor[1]+","+moveColor[2]+","+moveColor[3]+")");
 				    		}
 				    		else
 				    		{
-				    			values.push(clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")");
+				    			values.push("0,0,0,0)");
 				    		}
 				    	}
 				    }
@@ -348,12 +350,14 @@ var TwoD = (function() {
 	  		if(!("a" in result[0]))
 	  			a_ = 1;
 
-	  		var transition = $('input[name="Transition"]:checked').val();
+	  		instantTransition(result);
+
+	/*  		var transition = $('input[name="Transition"]:checked').val();
 	  		switch(transition) {
 			    case "in":
 					instantTransition(result);
 			        break;
-	/*		    case "del":
+			    case "del":
 			    	var prevTime = Date.now();
 			        for(i=0; i<rows; i++)
 			        {
@@ -378,10 +382,10 @@ var TwoD = (function() {
 							prevTime = Date.now();
 			        	}
 			        }
-			        break;*/
+			        break;
 			    default:
 			        instantTransition(result);
-			}
+			}*/
 		  	
 		  	function clamp(val, min, max)
 		  	{
@@ -399,14 +403,14 @@ var TwoD = (function() {
 			  		res.push(parseInt(strCol[0].substring(5,8)));
 			  		res.push(parseInt(strCol[1]));
 			  		res.push(parseInt(strCol[2]));
-			  		res.push(parseInt(strCol[3].substring(0,strCol[3].length-1)));
+			  		res.push(parseFloat(strCol[3].substring(0,strCol[3].length-1)));
 		  		}
 		  		else //only rgb given
 		  		{
 			  		res.push(parseInt(strCol[0].substring(4,7)));
 			  		res.push(parseInt(strCol[1]));
 			  		res.push(parseInt(strCol[2].substring(0,strCol[2].length-1)));
-			  		res.push(1);
+			  		res.push(1.);
 		  		}
 
 		  		return res;
@@ -414,23 +418,24 @@ var TwoD = (function() {
 
 		  	function instantTransition(result)
 		  	{
-				$("#container").children().css({backgroundColor: "rgba("+clearColor[0]+","+clearColor[1]+","+clearColor[2]+","+clearColor[3]+")"});
+				$("#container").children().css({backgroundColor: "rgba(0,0,0,0)"});
 		  		for(var i=0; i<result.length; i++)
 		  		{
 		  			var id = [Math.round(result[i].x), Math.round(result[i].y)];
 		  			var a = 0;
 		  			var divID = "cell"+id.join("-");
-		  			if($("#"+divID).attr('data-clearcol') != 1)
+		  			/*if($("#"+divID).attr('data-clearcol') != 1)
 		  			{
 						var pc = getCurColor(divID);
 						if(pc[3] > 0)
 						{
+							console.log("case 1");
 				  			var r = clamp(Math.round((result[i].r + pc[0])/2.), 0, 255);
 				  			var g = clamp(Math.round((result[i].g + pc[1])/2.), 0, 255);
 				  			var b = clamp(Math.round((result[i].b + pc[2])/2.), 0, 255);
 						}
 						else
-						{
+						{console.log("case 2");
 			  				var r = clamp(Math.round(result[i].r), 0, 255);
 				  			var g = clamp(Math.round(result[i].g), 0, 255);
 				  			var b = clamp(Math.round(result[i].b), 0, 255);
@@ -441,7 +446,7 @@ var TwoD = (function() {
 			  				a = clamp((result[i].a + pc[3])/2.,0,1);	
 		  			}
 					else
-					{
+					{console.log("case 3");*/
 		  				var r = clamp(Math.round(result[i].r), 0, 255);
 			  			var g = clamp(Math.round(result[i].g), 0, 255);
 			  			var b = clamp(Math.round(result[i].b), 0, 255);
@@ -449,7 +454,10 @@ var TwoD = (function() {
 			  				a = a_;
 			  			else
 			  				a = clamp(result[i].a,0,1);	
-					}
+
+			  			//mark cell as written
+			  			$("#"+divID).attr('data-clearcol', 0);
+					//}
 
 		  			$("#cell"+id.join("-")).css({backgroundColor: "rgba("+r+","+g+","+b+","+a+")"});
 		  		}
