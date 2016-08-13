@@ -121,31 +121,40 @@ body {
 
 .optionform {
   z-index: 10; // gui level
-  width: 70%;
-  padding: 10px;
-  margin-left: 25%;
   position: absolute;
-  bottom: 0px;
+  left: 0;
   .toggle {
-    color: rgb(255,255,255);
-    text-decoration: none;
+    background: url("../img/option_handle.gif") no-repeat;
     display: inline-block;
-    transition: background 0.5s ease, color 0.5s ease;
-    background-color: transparent;
-    margin: 0 0 5px 2px;
-    padding: 6px 10px;
-    border: 1px solid rgb(255,255,255);
-    font-style: uppercase;
-    &:hover {
-      background-color: rgb(255,255,255);
-      color: rgb(0,0,0)
-    }
+    width: 25px;
+    height: 40px;
+    float: right;
+    top: 120px;
+    left: -125px;
+    position: relative;
+    transition: left 0.5s ease-in-out;
   }
   form[name='options'] {
-    background: rgba(0,0,0,0.75);
-    color: rgb(255,255,255);
-    // initially hidden, can be toggled later with JS
-    display: none;
+    width: 135px;
+    height: 290px;
+    background: url("../img/option_body.gif") no-repeat;
+    color: white;
+    padding: 20px 10px 10px 10px;
+    border: 0 none;
+    position: relative;
+    transition: left 0.5s ease-in-out;
+    left: -150px;
+    fieldset {
+      border: 0 none;
+    }
+  }
+  &.toggled {
+    form[name='options'] {
+      left: 0px;
+    }
+    .toggle {
+      left: 25px;
+    }
   }
 }
 

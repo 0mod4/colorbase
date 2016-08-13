@@ -9,21 +9,22 @@
     input_form.query_input = $('#queryText')
     input_form.marker = input_form.self.find('.marker')
     option_form.container = $('div.optionform')
-    option_form.container_width = $('div.optionform').width()
+    option_form.container_height = $('div.optionform').height()
     option_form.self = option_form.container.find('form[name="options"]')
     option_form.toggle = option_form.container.find('.toggle')
     // initially hide option form
 
     function centerOptionForm () {
-      var new_position = viewport.center_x - (option_form.container_width) / 2
+      var new_position = viewport.center_y - (option_form.container_height) / 2
+      console.log(new_position)
       option_form.container.css({
-        'margin-left': new_position + 'px'
+        'top': new_position + 'px'
       })
     }
 
     function enableToggleOptionForm () {
       option_form.toggle.click(function () {
-        option_form.self.slideToggle()
+        option_form.container.toggleClass('toggled')
       })
     }
 
@@ -66,7 +67,7 @@
       input_form.marker.hide()
     })
 
-    // center the lower option form dynamically because CSS only won't work too well with absolute positioning
+    // center option form vertically
     centerOptionForm()
     // enable toggling of the option form element
     enableToggleOptionForm()

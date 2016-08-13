@@ -225,29 +225,36 @@ body {
 
 .optionform {
   z-index: 10;
-  width: 70%;
-  padding: 10px;
-  margin-left: 25%;
   position: absolute;
-  bottom: 0px; }
+  left: 0; }
   .optionform .toggle {
-    color: white;
-    text-decoration: none;
+    background: url("../img/option_handle.gif") no-repeat;
     display: inline-block;
-    -webkit-transition: background 0.5s ease, color 0.5s ease;
-            transition: background 0.5s ease, color 0.5s ease;
-    background-color: transparent;
-    margin: 0 0 5px 2px;
-    padding: 6px 10px;
-    border: 1px solid white;
-    font-style: uppercase; }
-    .optionform .toggle:hover {
-      background-color: white;
-      color: black; }
+    width: 25px;
+    height: 40px;
+    float: right;
+    top: 120px;
+    left: -125px;
+    position: relative;
+    -webkit-transition: left 0.5s ease-in-out;
+            transition: left 0.5s ease-in-out; }
   .optionform form[name='options'] {
-    background: rgba(0, 0, 0, 0.75);
+    width: 135px;
+    height: 290px;
+    background: url("../img/option_body.gif") no-repeat;
     color: white;
-    display: none; }
+    padding: 20px 10px 10px 10px;
+    border: 0 none;
+    position: relative;
+    -webkit-transition: left 0.5s ease-in-out;
+            transition: left 0.5s ease-in-out;
+    left: -150px; }
+    .optionform form[name='options'] fieldset {
+      border: 0 none; }
+  .optionform.toggled form[name='options'] {
+    left: 0px; }
+  .optionform.toggled .toggle {
+    left: 25px; }
 
 .greetings {
   width: auto;
