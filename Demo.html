@@ -345,9 +345,9 @@ var numStars = 50;
 				<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)">
+				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" checked = "checked">
 				<label for="2D">2D</label>
-				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)" checked = "checked">
+				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)">
 				<label for="3D">3D</label>
 				<label for="starfield_toggle">OMG it's full of stars!</label>
 				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
@@ -359,7 +359,8 @@ var numStars = 50;
     	<video id="camFeed" width="320" height="240" autoplay></video>
     	<canvas class="helperCanvas" id="videoCanvas" width="50" height="50"></canvas><!--change resolution here!!!!-->
     	<canvas class="helperCanvas" id="imageCanvas" width="50" height="50"></canvas>
-    	<img id="imgSource" src="Pictures/cube.png"/>
+    	<img class="imgSource" id="imgCube" src="Pictures/cube.png"/>
+    	<img class="imgSource" id="imgEvoke" src="Pictures/evoke2016.png"/>
 	</div>
 
 	<div id="container">
