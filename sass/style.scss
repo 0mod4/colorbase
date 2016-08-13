@@ -129,23 +129,69 @@ body {
     width: 25px;
     height: 40px;
     float: right;
-    top: 120px;
-    left: -125px;
+    top: 130px;
+    left: -70px;
     position: relative;
     transition: left 0.5s ease-in-out;
+    cursor: pointer;
   }
   form[name='options'] {
-    width: 135px;
-    height: 290px;
-    background: url("../img/option_body.gif") no-repeat;
+    width: 100px;
+    height: 350px;
+    background: url("../img/option_body.gif") no-repeat right center;
     color: white;
-    padding: 20px 10px 10px 10px;
+    padding: 30px 10px 10px 10px;
     border: 0 none;
     position: relative;
     transition: left 0.5s ease-in-out;
-    left: -150px;
+    left: -95px;
     fieldset {
       border: 0 none;
+      padding: 0;
+      margin: 0;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+    }
+    input[type="checkbox"] ~ label,
+    input[type="radio"] ~ label {
+      display: block;
+      width: 70px;
+      height: 70px;
+      transition: background 0.35s ease-in-out;
+    }
+    #playMusic ~ label.toggle-music {
+      background: url("../img/button-music_off.gif") no-repeat;
+    }
+    #playMusic:checked ~ label.toggle-music {
+      background: url("../img/button-music_on.png") no-repeat;
+    }
+    #useVideo ~ label.toggle-video {
+      background: url("../img/button-video_off.gif") no-repeat;
+    }
+    #useVideo:checked ~ label.toggle-video {
+      background: url("../img/button-video_on.png") no-repeat;
+    }
+    #starfield_toggle ~ label.toggle-starfield {
+      background: url("../img/button-stars_off.gif") no-repeat;
+    }
+    #starfield_toggle:checked ~ label.toggle-starfield {
+      background: url("../img/button-stars_on.png") no-repeat;
+    }
+    #zwoD-switch ~ label.switch-2d {
+      background: url("../img/button-2d_off.gif") no-repeat;
+    }
+    #zwoD-switch:checked ~ label.switch-2d {
+      background: url("../img/button-2d_on.png") no-repeat;
+    }
+    #dreiD-switch ~ label.switch-3d {
+      background: url("../img/button-3d_off.gif") no-repeat;
+    }
+    #dreiD-switch:checked ~ label.switch-3d {
+      background: url("../img/button-3d_on.png") no-repeat;
     }
   }
   &.toggled {

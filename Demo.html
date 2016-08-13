@@ -316,20 +316,20 @@ var numStars = 50;
 		<div class="toggle"></div>
  		<form name="options">
 			<fieldset>
-				<label for="playMusic">Music</label>
 				<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
-				<br>
-				<label for="useVideo">Video</label>
+				<label for="playMusic" class="toggle-music"></label>
+
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<br>
-				<label for="2D">2D</label>
-				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" checked = "checked">
-				<br>
-				<label for="3D">3D</label>
-				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)">
-				<br>
-				<label for="starfield_toggle">OMG it's full of stars!</label>
+				<label for="useVideo" class="toggle-video"></label>
+
+				<input type="radio" id="zwoD-switch" name="Dimension" value="2" onClick="setDimension(2)" checked = "checked">
+				<label for="zwoD-switch" class="switch-2d"></label>
+
+				<input type="radio" id="dreiD-switch" name="Dimension" value="3" onClick="setDimension(3)">
+				<label for="dreiD-switch" class="switch-3d"></label>
+
 				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
+				<label for="starfield_toggle" class="toggle-starfield"></label>
 			</fieldset>
 		</form>
  	</div>
