@@ -92,3 +92,22 @@ $white_flash: #ffffff;
     bottom: 0px;
   }
 }
+
+@keyframes rainbow {
+  0% {
+    background-position-y: 0%;
+  }
+  100% {
+    background-position-y: 330%;
+  }
+}
+
+@keyframes intro_scale {
+  from {
+    z-index: 99;
+    opacity: 0;
+    transform: scale(2);
+    top: 15%;
+    right: 20%;
+  }
+}

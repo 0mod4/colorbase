@@ -87,6 +87,33 @@ body {
   }
 }
 
+#logo {
+  width: 788px;
+  height: 332px;
+  position: absolute;
+  right: -120px;
+  top: -50px;
+  transform: scale(0.7);
+  opacity: 1;
+  animation: intro_scale 3s ease-in-out 1;
+  z-index: 9; // scroller level
+  span.logo-fg {
+    position: absolute;
+    background: url("../img/logo_cutout.gif") no-repeat;
+    display: block;
+    width: 788px;
+    height: 332px;
+    top: -2px;
+  }
+  .gradient {
+    -webkit-clip-path: polygon(164px 96px,143px 109px,144px 142px,128px 182px,118px 91px,43px 118px,97px 159px,102px 196px,117px 204px,29px 246px,173px 212px,168px 242px,281px 208px,257px 192px,261px 178px,315px 214px,490px 226px,519px 234px,533px 252px,583px 277px,596px 246px,759px 304px,724px 247px,646px 210px,601px 163px,613px 148px,623px 47px,586px 95px,570px 113px,543px 193px,536px 144px,521px 116px,499px 94px,523px 51px,458px 70px,463px 57px,456px 49px,409px 58px,393px 81px,380px 75px,296px 109px,288px 133px,257px 143px,243px 67px,221px 130px,210px 121px,222px 105px,168px 66px,154px 67px);
+    background: url("../img/rainbow.gif") repeat;
+    width: 788px;
+    height: 332px;
+    animation: rainbow 2s linear infinite;
+  }
+}
+
 .optionform {
   z-index: 10; // gui level
   width: 70%;
@@ -150,9 +177,11 @@ body {
     margin-bottom: 1px;
   }
 }
+
 #videoCanvas {
   display: none;
 }
+
 #videoDiv {
   position: fixed;
   right: 0;
