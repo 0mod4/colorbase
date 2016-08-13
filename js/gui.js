@@ -1,5 +1,5 @@
+'use strict';
 (function ($) {
-
   $.fn.initGUI = function () {
     // init dom
     var input_form = []
@@ -58,6 +58,14 @@
       })
     }
 
+    function showMarker () {
+      input_form.marker.show()
+    }
+
+    function hideMarker () {
+      input_form.marker.hide()
+    }
+
     // center the lower option form dynamically because CSS only won't work too well with absolute positioning
     centerOptionForm()
     // enable toggling of the option form element
@@ -67,9 +75,17 @@
     setFocusToQueryInput()
     blinkingCursor()
     preventReloadingInputQuery()
-    // simulate blinking cursor at end of input
+    // simulate blinking cursor
     input_form.query_input.on('input click keydown keyup', function () {
       blinkingCursor()
+    })
+    // set event listener for focus on jquery input
+    input_form.query_input.on('focus', function () {
+      showMarker()
+    })
+    input_form.query_input.blur(function () {
+      console.log('input has lost focus')
+      hideMarker()
     })
   }
 }(jQuery))
