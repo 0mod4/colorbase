@@ -1,4 +1,0 @@
-Greetings
-Hinweis wenn Query abgeschickt
-3D Tabellen
-und das refactoring der starfield-JS nicht vergessen
