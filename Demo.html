@@ -313,23 +313,21 @@ var numStars = 50;
 	</div>
 
  	<div class="optionform">
-		<a href="#" class="toggle">Toggle Settings</a>
+		<div class="toggle"></div>
  		<form name="options">
-			<fieldset>
-				<input type="radio" id="in" name="Transition" value="in">
-				<label for="in">Instant</label>
-				<input type="radio" id="del" name="Transition" value="del">
-				<label for="del">Delay</label>
-			</fieldset>
 			<fieldset>
 				<label for="playMusic">Music</label>
 				<input type="checkbox" id="playMusic" onClick="toggleMusic()" value="Play">
+				<br>
 				<label for="useVideo">Video</label>
 				<input type="checkbox" id="useVideo" onClick="toggleVideo()" value="Play">
-				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" checked = "checked">
+				<br>
 				<label for="2D">2D</label>
-				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)">
+				<input type="radio" id="2D" name="Dimension" value="2" onClick="setDimension(2)" checked = "checked">
+				<br>
 				<label for="3D">3D</label>
+				<input type="radio" id="3D" name="Dimension" value="3" onClick="setDimension(3)">
+				<br>
 				<label for="starfield_toggle">OMG it's full of stars!</label>
 				<input type="checkbox" id="starfield_toggle" onClick="toggleStarfield()" value="On">
 			</fieldset>
