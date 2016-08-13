@@ -213,6 +213,7 @@ body {
   bottom: 0px;
   //animation: greetings_wobble 1.5s infinite ease-in-out;
   .text {
+    -webkit-user-select: none;
     top: 0px;
     transition: top 2s ease-in-out;
     background: -webkit-gradient(linear,  left top,  left bottom,

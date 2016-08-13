@@ -130,6 +130,7 @@
   src: url("../fonts/asciid.woff2") format("woff2"), url("../fonts/asciid.woff") format("woff");
   font-weight: normal;
   font-style: normal; }
+body *{  -webkit-user-select: none; }
 body {
   background-image: url("../img/background_nebula.jpg");
   background-size: cover;
