@@ -150,23 +150,35 @@ body {
 }
 
 .greetings {
-  width: 100%;
-  overflow: hidden;
+  width: auto;
+  height: 50px;
   position: absolute;
   bottom: 0px;
   height: 127px;
-  p.char {
-    transition: left 10s linear;
-    color: white;
+  .text {
+    animation: greetings_wobble 1.5s infinite ease-in-out;
+    background: -webkit-gradient(linear,  left top,  left bottom,
+                color-stop(0%, rgba(255, 0, 0, 1)),
+                color-stop(15%, rgba(255, 255, 0, 1)),
+                color-stop(30%, rgba(0, 255, 0, 1)),
+                color-stop(50%, rgba(0, 255, 255, 1)),
+                color-stop(65%, rgba(0, 0, 255, 1)),
+                color-stop(80%, rgba(255, 0, 255, 1)),
+                color-stop(100%, rgba(255, 0, 0, 1)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-family: 'asciid';
     font-size: 70px;
     position: absolute;
+    bottom: 0;
+    left: 0;
+    letter-spacing: 13px;
+    white-space: nowrap;
     display: block;
     margin: 0;
     padding: 0;
-    float: left;
-    bottom: 0px;
-    z-index: 9000;
+    width: auto;
+    z-index: 9; // scroller level
   }
 }
 
