@@ -13,7 +13,7 @@
       var char_array = []
       $.get(path_of_greetings_file, function (data) {
         char_array = data.split('')
-        renderGreetings(char_array)
+        //renderGreetings(char_array)
       }, 'text')
     }
 
