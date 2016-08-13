@@ -47,7 +47,7 @@
 
     function scrollText() {
       current_top = parseInt($('.text').css('top'), 10)
-      new_top = current_top - 80
+      new_top = current_top - 77
       $('.text').css('top', new_top + 'px')
     }
 
