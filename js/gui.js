@@ -58,6 +58,14 @@
       })
     }
 
+    input_form.query_input.on('focus', function () {
+      input_form.marker.show()
+    })
+
+    input_form.query_input.on('blur', function () {
+      input_form.marker.hide()
+    })
+
     // center the lower option form dynamically because CSS only won't work too well with absolute positioning
     centerOptionForm()
     // enable toggling of the option form element

@@ -158,7 +158,7 @@ body {
   width: auto; }
   .inputform form {
     color: white;
-    width: 100%;
+    width: 60%;
     -webkit-animation: text_flicker 0.3s alternate infinite;
             animation: text_flicker 0.3s alternate infinite; }
     .inputform form #queryText {
@@ -169,9 +169,14 @@ body {
       margin: 0;
       padding: 0;
       font-family: "meyrinregular";
+      -webkit-transition: background-color 1s ease-in-out;
+              transition: background-color 1s ease-in-out;
       font-size: 250%;
       float: left;
-      width: 100%; }
+      width: 100%;
+      border-radius: 10px; }
+      .inputform form #queryText:focus {
+        background-color: black; }
       .inputform form #queryText.glow {
         -webkit-animation: text_glow 0.25s infinite;
                 animation: text_glow 0.25s infinite; }
@@ -285,5 +290,4 @@ body {
   padding: 10px; }
   #videoDiv #imgSource {
     display: none; }
-
 /*# sourceMappingURL=style.css.map */
