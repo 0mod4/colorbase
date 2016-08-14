@@ -41,21 +41,25 @@ Select and show only some color values
 select x,y,r,g,b,a from CUBE WHERE r>200 and b<100
 ```
 Show equalizer reading from music
+
 Do not forget to switch on the music via the options menu!
 ```SQL
 select * from MUSIC
 ```
 Union of Evoke 2016 logo with equalizer
+
 Do not forget to turn on music in options menu!
 ```SQL
 select * from MUSIC UNION select * from EVOKE
 ```
 Video feed
+
 Do not forget to turn on video in options menu!
 ```SQL
 select * from VIDEO
 ```
 Motion detection
+
 Do not forget to turn on video in options menu!
 ```SQL
 select VIDEO.x, VIDEO.y, MOVE.r, VIDEO.g, VIDEO.b from VIDEO,MOVE where VIDEO.x=MOVE.x and VIDEO.y=MOVE.y
@@ -71,11 +75,13 @@ Random Rubiks Cube
 select * from CUBE
 ```
 3D equalizer in UNION with Rubiks Cube with only some color values selected
+
 Do not forget to turn on music in options menu!
 ```SQL
 SELECT * FROM CUBE WHERE b>100 UNION select * from MUSIC
 ```
 Webcam video feed in 3D (**this is the most fun in my opinion**)
+
 Do not forget to turn on video in options menu!
 ```SQL
 SELECT * FROM VIDEO
