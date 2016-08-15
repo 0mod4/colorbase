@@ -8,16 +8,17 @@ Having Python installed anyway? Do this:
 python -m SimpleHTTPServer 9090
 ```
 Using OSX and dont want to use Python? I recommend the free version of MAMP.
-Using Windows and Linux, there is LAMPP and XAMPP which are slightly larger, slower and more of a pain in the ass to set up. Your choice. :)
+Using Windows and Linux, there is LAMPP and XAMPP which are larger, slower and more of a pain in the ass to set up. Your choice. :)
 
 ### Check out this repo
-Preferably into the htdocs (or similar web root of your server) folder into its own near subfolder "visql".
+Preferably into the htdocs (or similar web root of your server) folder into its own neat subfolder "visql".
 
-### Open localhost/visql/index.htm
-You are ready. Enter statements in the console-alike input at the top and run by hitting <ENTER>
+### Open localhost/visql/Demo.html
+You are done! Enter statements in the console-alike input at the top and run by hitting [ENTER]
 
 ### Some examples for tables
-You can then enjoy some basic example tables, based on which context you are. Click the handle on the left to open options, switch to 2D or 3D context there (cube = 3D, plane = 2D).
+You can then enjoy some basic example tables, based on which "mode" you are in. Click the handle on the left to open options, switch to 2D or 3D mode there (cube = 3D, plane = 2D).
+Other options include music-switch, starfield (yay! It lags horrible if used in 3D mode) and video feed (you need a video camera plugged into your Computer, and allow the browser to use it).
 
 ##### 2D
 This is the "dummy" table
